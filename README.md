@@ -1,6 +1,8 @@
-# IONIX MCP Server
+# IONIX MCP Server (Beta)
 
-A Model Context Protocol (MCP) server that provides comprehensive tools for interacting with the IONIX API. This server enables Claude Desktop and other MCP clients to query asset information, security assessments, remediation items, and more from your IONIX account.
+A Model Context Protocol (MCP) server that provides comprehensive tools for interacting with the IONIX API. This server enables Claude Desktop and other MCP clients to query asset information, security findings (action items), security assessments, remediation items, and more from your IONIX account.
+
+Note: the IONIX MCP server is in beta.
 
 ## Usage
 
