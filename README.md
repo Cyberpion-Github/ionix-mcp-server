@@ -6,7 +6,7 @@ Note: the IONIX MCP server is in beta.
 
 ## Usage
 
-1. Install uv if you haven't already:
+1. Install uv if you haven't already ([installation guide for your OS](https://docs.astral.sh/uv/getting-started/installation/)):
   ```bash
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
