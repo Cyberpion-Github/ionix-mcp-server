@@ -23,15 +23,18 @@ A Model Context Protocol (MCP) server that provides comprehensive tools for inte
         "ionix-mcp"
       ],
       "env": {
-          "IONIX_API_KEY": "TBD"
+          "IONIX_API_KEY": "Your IONIX API key"
       }
     }
   }
 }
 ```
+
+Place your IONIX API key in the `IONIX_API_KEY` environment variable. You can generate an API key in the IONIX platform under Settings -> API -> Create Token.
+
 The Claude Desktop config file is in `~/Library/Application Support/Claude/claude_desktop_config.json` on Mac and in `%APPDATA%\Claude\claude_desktop_config.json` on Windows.
 
-Note: you can also add an IONIX_ACCOUNT_NAME environment variable if you want to set a default account to be used in all API calls.
+Note: you can also add an `IONIX_ACCOUNT_NAME` environment variable if you want to set a default account to be used in all API calls.
 
 4. Restart Claude Desktop
 
