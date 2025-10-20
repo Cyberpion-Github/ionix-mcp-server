@@ -11,35 +11,69 @@ Note: the IONIX MCP server is in beta.
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
 
-2. Update the Claude Desktop configuration file to include the MCP server:
-```json
-{
-  "mcpServers": {
-    "ionix": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/Cyberpion-Github/ionix-mcp-server.git@main",
-        "ionix-mcp"
-      ],
-      "env": {
-          "IONIX_API_KEY": "Your IONIX API key",
-          "IONIX_ACCOUNT_NAME": "Your IONIX account name"
-      }
-    }
-  }
-}
-```
+2. Locate or create the Claude Desktop configuration file. The location depends on your operating system:
+   - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
-Place your IONIX API key in the `IONIX_API_KEY` environment variable. You can generate an API key in the IONIX platform under Settings -> API -> Create Token.
+   If the file doesn't exist, create it. If it already exists, you'll add the IONIX configuration to the existing `mcpServers` section.
 
-The Claude Desktop config file is in `~/Library/Application Support/Claude/claude_desktop_config.json` on Mac and in `%APPDATA%\Claude\claude_desktop_config.json` on Windows.
+3. Determine your uvx path. Use the full path to `uvx` based on your operating system (replace `YOUR_USERNAME` with your actual username):
+   - **macOS/Linux:** `/Users/YOUR_USERNAME/.local/bin/uvx`
+   - **Windows:** `C:\Users\YOUR_USERNAME\.local\bin\uvx.exe`
 
-Place your account name in the `IONIX_ACCOUNT_NAME` environment variable. Reach out to IONIX support if you need help finding your account name.
+4. Get your IONIX credentials:
+   - **API Key:** Generate an API key in the IONIX platform under Settings -> API -> Create Token
+   - **Account Name:** Your IONIX account name (reach out to IONIX support if you need help finding it)
 
-3. Restart Claude Desktop - you should see the IONIX MCP servers listed as an available "connector". 
+5. Edit the configuration file:
 
-Note: make sure `uvx` is in your system PATH. If it is not, you can try replacing `"command": "uvx"` with the full path to the `uvx` executable, e.g. `/Users/YOUR_USERNAME/.local/bin/uvx`.
+   **If the file is new or empty**, paste this entire configuration (remember to replace `YOUR_USERNAME`, `Your IONIX API key`, and `Your IONIX account name`):
+
+   ```json
+   {
+     "mcpServers": {
+       "ionix": {
+         "command": "/Users/YOUR_USERNAME/.local/bin/uvx",
+         "args": [
+           "--from",
+           "git+https://github.com/Cyberpion-Github/ionix-mcp-server.git@main",
+           "ionix-mcp"
+         ],
+         "env": {
+             "IONIX_API_KEY": "Your IONIX API key",
+             "IONIX_ACCOUNT_NAME": "Your IONIX account name"
+         }
+       }
+     }
+   }
+   ```
+
+   **If the file already has other MCP servers configured**, add the `ionix` section inside the existing `mcpServers` object. For example:
+
+   ```json
+   {
+     "mcpServers": {
+       "existing-server": {
+         "command": "...",
+         "args": ["..."]
+       },
+       "ionix": {
+         "command": "/Users/YOUR_USERNAME/.local/bin/uvx",
+         "args": [
+           "--from",
+           "git+https://github.com/Cyberpion-Github/ionix-mcp-server.git@main",
+           "ionix-mcp"
+         ],
+         "env": {
+             "IONIX_API_KEY": "Your IONIX API key",
+             "IONIX_ACCOUNT_NAME": "Your IONIX account name"
+         }
+       }
+     }
+   }
+   ```
+
+6. Restart Claude Desktop - you should see the IONIX MCP servers listed as an available "connector".
 
 ### Example Queries
 
