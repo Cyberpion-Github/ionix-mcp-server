@@ -24,7 +24,7 @@ Note: the IONIX MCP server is in beta.
       ],
       "env": {
           "IONIX_API_KEY": "Your IONIX API key",
-          "IONIX_ACCOUNT_NAME": "Your IONIX account name (optional)"
+          "IONIX_ACCOUNT_NAME": "Your IONIX account name"
       }
     }
   }
