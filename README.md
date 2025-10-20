@@ -11,9 +11,7 @@ Note: the IONIX MCP server is in beta.
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
 
-2. If you hadn't done so already, configure Bitbucket access by adding your machine's SSH key here: https://bitbucket.org/account/settings/ssh-keys/
-
-3. Update the Claude Desktop configuration file to include the MCP server:
+2. Update the Claude Desktop configuration file to include the MCP server:
 ```json
 {
   "mcpServers": {
@@ -39,7 +37,7 @@ The Claude Desktop config file is in `~/Library/Application Support/Claude/claud
 
 Place your account name in the `IONIX_ACCOUNT_NAME` environment variable. Reach out to IONIX support if you need help finding your account name.
 
-4. Restart Claude Desktop
+3. Restart Claude Desktop
 
 ### Example Queries
 
