@@ -37,7 +37,9 @@ The Claude Desktop config file is in `~/Library/Application Support/Claude/claud
 
 Place your account name in the `IONIX_ACCOUNT_NAME` environment variable. Reach out to IONIX support if you need help finding your account name.
 
-3. Restart Claude Desktop
+3. Restart Claude Desktop - you should see the IONIX MCP servers listed as an available "connector". 
+
+Note: make sure `uvx` is in your system PATH. If it is not, you can try replacing `"command": "uvx"` with the full path to the `uvx` executable, e.g. `/Users/YOUR_USERNAME/.local/bin/uvx`.
 
 ### Example Queries
 
@@ -48,7 +50,7 @@ You can ask Claude to:
 - "Show me the technologies discovered on assets"
 - "What are the open action items for remediation?"
 
-**Enhanced Asset Discovery (NEW!):**
+**Enhanced Asset Discovery:**
 - "Find assets with HTTPS titles containing 'Admin Panel'"
 - "Show me assets hosted on AWS in the US region"
 - "Get assets with CVE vulnerabilities containing 'CVE-2023'"
@@ -68,4 +70,4 @@ You can ask Claude to:
 
 ### Multi-Account Support
 
-All tools support an optional `account_name` parameter for querying different IONIX accounts.
+All tools support an optional `account_name` parameter for querying different IONIX accounts (for MSSPs).
