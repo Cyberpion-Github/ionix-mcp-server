@@ -847,6 +847,245 @@ async def get_assessments_org_assets(
     data = fetch("assessments/org-assets/", params=params, account_name=account_name)
     return str(data)
 
+# MSSP endpoints
+@mcp.tool()
+async def get_mssp_company(
+    account_name: str | None = None
+) -> str:
+    """Get MSSP company information.
+
+    Returns MSSP company details for the authenticated API key.
+
+    Args:
+        account_name: Override the default account name from environment (optional)
+    """
+    data = fetch("mssp/mssp-company/", account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def list_mssp_sub_accounts(
+    display_name: str | None = None,
+    display_name_contains: str | None = None,
+    display_name_contains_ne: str | None = None,
+    display_name_endswith: str | None = None,
+    display_name_icontains: str | None = None,
+    display_name_intext: str | None = None,
+    display_name_ne: str | None = None,
+    display_name_startswith: str | None = None,
+    id_in: str | None = None,
+    is_active_plan: bool | None = None,
+    last_login_date_gte: str | None = None,
+    last_login_date_lte: str | None = None,
+    last_login_date_range: str | None = None,
+    last_scan_date_gte: str | None = None,
+    last_scan_date_lte: str | None = None,
+    last_scan_date_range: str | None = None,
+    last_seed_data_update_time_gte: str | None = None,
+    last_seed_data_update_time_lte: str | None = None,
+    last_seed_data_update_time_range: str | None = None,
+    mssp_company: str | None = None,
+    mssp_company_contains: str | None = None,
+    mssp_company_contains_ne: str | None = None,
+    mssp_company_endswith: str | None = None,
+    mssp_company_ne: str | None = None,
+    mssp_company_startswith: str | None = None,
+    name: str | None = None,
+    name_contains: str | None = None,
+    name_contains_ne: str | None = None,
+    name_endswith: str | None = None,
+    name_icontains: str | None = None,
+    name_intext: str | None = None,
+    name_ne: str | None = None,
+    name_startswith: str | None = None,
+    plan_in: str | None = None,
+    risk_score_in: str | None = None,
+    scan_frequency_in: str | None = None,
+    scan_status_in: str | None = None,
+    tags_contains: str | None = None,
+    tags_contains_ne: str | None = None,
+    tags_in: str | None = None,
+    tags_isnull: bool | None = None,
+    tags_overlap: str | None = None,
+    tags_overlap_ne: str | None = None,
+    ordering: str | None = None,
+    search: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    fields: str | None = None,
+    account_name: str | None = None,
+) -> str:
+    """List MSSP sub-accounts with rich filtering.
+
+    Filters mirror the IONIX API query parameters for `/mssp/sub-account/`.
+
+    Args:
+        display_name: Exact display name
+        display_name_contains: Display name contains
+        display_name_contains_ne: Display name contains (negated)
+        display_name_endswith: Display name endswith
+        display_name_icontains: Display name case-insensitive contains
+        display_name_intext: Display name full-text search
+        display_name_ne: Display name not equal
+        display_name_startswith: Display name startswith
+        id_in: Comma-separated list of IDs
+        is_active_plan: Whether account has an active plan
+        last_login_date_gte: Last login date >= (YYYY-MM-DD)
+        last_login_date_lte: Last login date <= (YYYY-MM-DD)
+        last_login_date_range: Date range, comma-separated
+        last_scan_date_gte: Last scan date >= (YYYY-MM-DD)
+        last_scan_date_lte: Last scan date <= (YYYY-MM-DD)
+        last_scan_date_range: Date range, comma-separated
+        last_seed_data_update_time_gte: Last seed update >= (YYYY-MM-DD)
+        last_seed_data_update_time_lte: Last seed update <= (YYYY-MM-DD)
+        last_seed_data_update_time_range: Date range, comma-separated
+        mssp_company: Exact MSSP company name
+        mssp_company_contains: MSSP company contains
+        mssp_company_contains_ne: MSSP company contains (negated)
+        mssp_company_endswith: MSSP company endswith
+        mssp_company_ne: MSSP company not equal
+        mssp_company_startswith: MSSP company startswith
+        name: Exact company name
+        name_contains: Company name contains
+        name_contains_ne: Company name contains (negated)
+        name_endswith: Company name endswith
+        name_icontains: Company name case-insensitive contains
+        name_intext: Company name full-text search
+        name_ne: Company name not equal
+        name_startswith: Company name startswith
+        plan_in: Comma-separated plan values
+        risk_score_in: Comma-separated risk scores
+        scan_frequency_in: Comma-separated scan frequencies
+        scan_status_in: Comma-separated scan statuses
+        tags_contains: Tags contains
+        tags_contains_ne: Tags contains (negated)
+        tags_in: Comma-separated tags
+        tags_isnull: Whether tags is null
+        tags_overlap: Comma-separated tags to overlap
+        tags_overlap_ne: Comma-separated tags that must not overlap
+        ordering: Field for ordering
+        search: Search term
+        limit: Page size
+        offset: Result offset
+        fields: Comma-separated fields to include
+        account_name: Override default account
+    """
+    params: dict[str, Any] = {}
+
+    if display_name is not None:
+        params["display_name"] = display_name
+    if display_name_contains is not None:
+        params["display_name__contains"] = display_name_contains
+    if display_name_contains_ne is not None:
+        params["display_name__contains_ne"] = display_name_contains_ne
+    if display_name_endswith is not None:
+        params["display_name__endswith"] = display_name_endswith
+    if display_name_icontains is not None:
+        params["display_name__icontains"] = display_name_icontains
+    if display_name_intext is not None:
+        params["display_name__intext"] = display_name_intext
+    if display_name_ne is not None:
+        params["display_name__ne"] = display_name_ne
+    if display_name_startswith is not None:
+        params["display_name__startswith"] = display_name_startswith
+    if id_in is not None:
+        params["id__in"] = id_in
+    if is_active_plan is not None:
+        params["is_active_plan"] = is_active_plan
+    if last_login_date_gte is not None:
+        params["last_login_date__gte"] = last_login_date_gte
+    if last_login_date_lte is not None:
+        params["last_login_date__lte"] = last_login_date_lte
+    if last_login_date_range is not None:
+        params["last_login_date__range"] = last_login_date_range
+    if last_scan_date_gte is not None:
+        params["last_scan_date__gte"] = last_scan_date_gte
+    if last_scan_date_lte is not None:
+        params["last_scan_date__lte"] = last_scan_date_lte
+    if last_scan_date_range is not None:
+        params["last_scan_date__range"] = last_scan_date_range
+    if last_seed_data_update_time_gte is not None:
+        params["last_seed_data_update_time__gte"] = last_seed_data_update_time_gte
+    if last_seed_data_update_time_lte is not None:
+        params["last_seed_data_update_time__lte"] = last_seed_data_update_time_lte
+    if last_seed_data_update_time_range is not None:
+        params["last_seed_data_update_time__range"] = last_seed_data_update_time_range
+    if mssp_company is not None:
+        params["mssp_company"] = mssp_company
+    if mssp_company_contains is not None:
+        params["mssp_company__contains"] = mssp_company_contains
+    if mssp_company_contains_ne is not None:
+        params["mssp_company__contains_ne"] = mssp_company_contains_ne
+    if mssp_company_endswith is not None:
+        params["mssp_company__endswith"] = mssp_company_endswith
+    if mssp_company_ne is not None:
+        params["mssp_company__ne"] = mssp_company_ne
+    if mssp_company_startswith is not None:
+        params["mssp_company__startswith"] = mssp_company_startswith
+    if name is not None:
+        params["name"] = name
+    if name_contains is not None:
+        params["name__contains"] = name_contains
+    if name_contains_ne is not None:
+        params["name__contains_ne"] = name_contains_ne
+    if name_endswith is not None:
+        params["name__endswith"] = name_endswith
+    if name_icontains is not None:
+        params["name__icontains"] = name_icontains
+    if name_intext is not None:
+        params["name__intext"] = name_intext
+    if name_ne is not None:
+        params["name__ne"] = name_ne
+    if name_startswith is not None:
+        params["name__startswith"] = name_startswith
+    if plan_in is not None:
+        params["plan__in"] = plan_in
+    if risk_score_in is not None:
+        params["risk_score__in"] = risk_score_in
+    if scan_frequency_in is not None:
+        params["scan_frequency__in"] = scan_frequency_in
+    if scan_status_in is not None:
+        params["scan_status__in"] = scan_status_in
+    if tags_contains is not None:
+        params["tags__contains"] = tags_contains
+    if tags_contains_ne is not None:
+        params["tags__contains_ne"] = tags_contains_ne
+    if tags_in is not None:
+        params["tags__in"] = tags_in
+    if tags_isnull is not None:
+        params["tags__isnull"] = tags_isnull
+    if tags_overlap is not None:
+        params["tags__overlap"] = tags_overlap
+    if tags_overlap_ne is not None:
+        params["tags__overlap_ne"] = tags_overlap_ne
+    if ordering is not None:
+        params["ordering"] = ordering
+    if search is not None:
+        params["search"] = search
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+    if fields is not None:
+        params["fields"] = fields
+
+    data = fetch("mssp/sub-account/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_mssp_sub_account(
+    company_name: str,
+    account_name: str | None = None
+) -> str:
+    """Get a single MSSP sub-account by company name.
+
+    Args:
+        company_name: The sub-account company name (path parameter)
+        account_name: Override the default account name from environment (optional)
+    """
+    path = f"mssp/sub-account/{company_name}/"
+    data = fetch(path, account_name=account_name)
+    return str(data)
+
 def main():
     """Main entry point for the IONIX MCP server."""
     api_key = os.getenv("IONIX_API_KEY")

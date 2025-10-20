@@ -25,7 +25,8 @@ Note: the IONIX MCP server is in beta.
         "ionix-mcp"
       ],
       "env": {
-          "IONIX_API_KEY": "Your IONIX API key"
+          "IONIX_API_KEY": "Your IONIX API key",
+          "IONIX_ACCOUNT_NAME": "Your IONIX account name (optional)"
       }
     }
   }
@@ -36,7 +37,7 @@ Place your IONIX API key in the `IONIX_API_KEY` environment variable. You can ge
 
 The Claude Desktop config file is in `~/Library/Application Support/Claude/claude_desktop_config.json` on Mac and in `%APPDATA%\Claude\claude_desktop_config.json` on Windows.
 
-Note: you can also add an `IONIX_ACCOUNT_NAME` environment variable if you want to set a default account to be used in all API calls.
+Place your account name in the `IONIX_ACCOUNT_NAME` environment variable. Reach out to IONIX support if you need help finding your account name.
 
 4. Restart Claude Desktop
 
@@ -62,7 +63,11 @@ You can ask Claude to:
 - "Show me certificates for assets containing 'mycompany'"
 - "Get all action items for the asset api.example.com"
 
+**MSSP Management:**
+- "Get MSSP company info"
+- "List MSSP sub-accounts with name containing 'Acme'"
+- "Get MSSP sub-account details for company 'AcmeCo'"
+
 ### Multi-Account Support
 
-All tools support an optional `account_name` parameter for querying different IONIX accounts:
-
+All tools support an optional `account_name` parameter for querying different IONIX accounts.
