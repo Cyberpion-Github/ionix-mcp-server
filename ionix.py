@@ -475,6 +475,20 @@ async def get_action_items_open(
     asset: str | None = None,
     asset_contains: str | None = None,
     title_contains: str | None = None,
+    # Urgency/Severity filtering
+    urgency_in: str | None = None,
+    # Time filtering - open/creation time
+    first_opened_at_gte: str | None = None,
+    first_opened_at_lte: str | None = None,
+    first_opened_at_range: str | None = None,
+    last_opened_at_gte: str | None = None,
+    last_opened_at_lte: str | None = None,
+    last_opened_at_range: str | None = None,
+    # Time filtering - close time
+    last_closed_at_gte: str | None = None,
+    last_closed_at_lte: str | None = None,
+    last_closed_at_range: str | None = None,
+    # Standard parameters
     limit: int | None = None,
     offset: int | None = None,
     ordering: str | None = None,
@@ -486,6 +500,24 @@ async def get_action_items_open(
         asset: Filter by exact asset name (optional)
         asset_contains: Filter by assets containing this string (optional)
         title_contains: Filter by title containing this string (optional)
+
+        # Urgency/Severity Filtering
+        urgency_in: Filter by urgency/severity levels, comma-separated (optional)
+
+        # Time Filtering - Open/Creation Time
+        first_opened_at_gte: Filter items first opened on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        first_opened_at_lte: Filter items first opened on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        first_opened_at_range: Filter items first opened within datetime range, comma-separated (optional)
+        last_opened_at_gte: Filter items last opened on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_opened_at_lte: Filter items last opened on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_opened_at_range: Filter items last opened within datetime range, comma-separated (optional)
+
+        # Time Filtering - Close Time
+        last_closed_at_gte: Filter items closed on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_closed_at_lte: Filter items closed on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_closed_at_range: Filter items closed within datetime range, comma-separated (optional)
+
+        # Standard Parameters
         limit: Number of results to return per page (optional)
         offset: The initial index from which to return the results (optional)
         ordering: Field to use for ordering results (optional)
@@ -498,6 +530,34 @@ async def get_action_items_open(
         params["asset__contains"] = asset_contains
     if title_contains is not None:
         params["title__contains"] = title_contains
+
+    # Urgency/Severity filtering
+    if urgency_in is not None:
+        params["urgency__in"] = urgency_in
+
+    # Time filtering - open/creation time
+    if first_opened_at_gte is not None:
+        params["first_opened_at__gte"] = first_opened_at_gte
+    if first_opened_at_lte is not None:
+        params["first_opened_at__lte"] = first_opened_at_lte
+    if first_opened_at_range is not None:
+        params["first_opened_at__range"] = first_opened_at_range
+    if last_opened_at_gte is not None:
+        params["last_opened_at__gte"] = last_opened_at_gte
+    if last_opened_at_lte is not None:
+        params["last_opened_at__lte"] = last_opened_at_lte
+    if last_opened_at_range is not None:
+        params["last_opened_at__range"] = last_opened_at_range
+
+    # Time filtering - close time
+    if last_closed_at_gte is not None:
+        params["last_closed_at__gte"] = last_closed_at_gte
+    if last_closed_at_lte is not None:
+        params["last_closed_at__lte"] = last_closed_at_lte
+    if last_closed_at_range is not None:
+        params["last_closed_at__range"] = last_closed_at_range
+
+    # Standard parameters
     if limit is not None:
         params["limit"] = limit
     if offset is not None:
@@ -511,6 +571,20 @@ async def get_action_items_open(
 @mcp.tool()
 async def get_action_items_open_detailed(
     asset: str | None = None,
+    # Urgency/Severity filtering
+    urgency_in: str | None = None,
+    # Time filtering - open/creation time
+    first_opened_at_gte: str | None = None,
+    first_opened_at_lte: str | None = None,
+    first_opened_at_range: str | None = None,
+    last_opened_at_gte: str | None = None,
+    last_opened_at_lte: str | None = None,
+    last_opened_at_range: str | None = None,
+    # Time filtering - close time
+    last_closed_at_gte: str | None = None,
+    last_closed_at_lte: str | None = None,
+    last_closed_at_range: str | None = None,
+    # Standard parameters
     limit: int | None = None,
     offset: int | None = None,
     ordering: str | None = None,
@@ -520,6 +594,24 @@ async def get_action_items_open_detailed(
 
     Args:
         asset: Filter by exact asset name (optional)
+
+        # Urgency/Severity Filtering
+        urgency_in: Filter by urgency/severity levels, comma-separated (optional)
+
+        # Time Filtering - Open/Creation Time
+        first_opened_at_gte: Filter items first opened on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        first_opened_at_lte: Filter items first opened on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        first_opened_at_range: Filter items first opened within datetime range, comma-separated (optional)
+        last_opened_at_gte: Filter items last opened on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_opened_at_lte: Filter items last opened on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_opened_at_range: Filter items last opened within datetime range, comma-separated (optional)
+
+        # Time Filtering - Close Time
+        last_closed_at_gte: Filter items closed on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_closed_at_lte: Filter items closed on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_closed_at_range: Filter items closed within datetime range, comma-separated (optional)
+
+        # Standard Parameters
         limit: Number of results to return per page (optional)
         offset: The initial index from which to return the results (optional)
         ordering: Field to use for ordering results (optional)
@@ -528,6 +620,34 @@ async def get_action_items_open_detailed(
     params = {}
     if asset is not None:
         params["asset"] = asset
+
+    # Urgency/Severity filtering
+    if urgency_in is not None:
+        params["urgency__in"] = urgency_in
+
+    # Time filtering - open/creation time
+    if first_opened_at_gte is not None:
+        params["first_opened_at__gte"] = first_opened_at_gte
+    if first_opened_at_lte is not None:
+        params["first_opened_at__lte"] = first_opened_at_lte
+    if first_opened_at_range is not None:
+        params["first_opened_at__range"] = first_opened_at_range
+    if last_opened_at_gte is not None:
+        params["last_opened_at__gte"] = last_opened_at_gte
+    if last_opened_at_lte is not None:
+        params["last_opened_at__lte"] = last_opened_at_lte
+    if last_opened_at_range is not None:
+        params["last_opened_at__range"] = last_opened_at_range
+
+    # Time filtering - close time
+    if last_closed_at_gte is not None:
+        params["last_closed_at__gte"] = last_closed_at_gte
+    if last_closed_at_lte is not None:
+        params["last_closed_at__lte"] = last_closed_at_lte
+    if last_closed_at_range is not None:
+        params["last_closed_at__range"] = last_closed_at_range
+
+    # Standard parameters
     if limit is not None:
         params["limit"] = limit
     if offset is not None:
@@ -686,6 +806,20 @@ async def get_discovery_managed_domains(
 async def get_action_items_closed(
     asset: str | None = None,
     asset_contains: str | None = None,
+    # Urgency/Severity filtering
+    urgency_in: str | None = None,
+    # Time filtering - open/creation time
+    first_opened_at_gte: str | None = None,
+    first_opened_at_lte: str | None = None,
+    first_opened_at_range: str | None = None,
+    last_opened_at_gte: str | None = None,
+    last_opened_at_lte: str | None = None,
+    last_opened_at_range: str | None = None,
+    # Time filtering - close time
+    last_closed_at_gte: str | None = None,
+    last_closed_at_lte: str | None = None,
+    last_closed_at_range: str | None = None,
+    # Standard parameters
     limit: int | None = None,
     offset: int | None = None,
     ordering: str | None = None,
@@ -696,6 +830,24 @@ async def get_action_items_closed(
     Args:
         asset: Filter by exact asset name (optional)
         asset_contains: Filter by assets containing this string (optional)
+
+        # Urgency/Severity Filtering
+        urgency_in: Filter by urgency/severity levels, comma-separated (optional)
+
+        # Time Filtering - Open/Creation Time
+        first_opened_at_gte: Filter items first opened on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        first_opened_at_lte: Filter items first opened on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        first_opened_at_range: Filter items first opened within datetime range, comma-separated (optional)
+        last_opened_at_gte: Filter items last opened on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_opened_at_lte: Filter items last opened on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_opened_at_range: Filter items last opened within datetime range, comma-separated (optional)
+
+        # Time Filtering - Close Time
+        last_closed_at_gte: Filter items closed on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_closed_at_lte: Filter items closed on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_closed_at_range: Filter items closed within datetime range, comma-separated (optional)
+
+        # Standard Parameters
         limit: Number of results to return per page (optional)
         offset: The initial index from which to return the results (optional)
         ordering: Field to use for ordering results (optional)
@@ -706,6 +858,34 @@ async def get_action_items_closed(
         params["asset"] = asset
     if asset_contains is not None:
         params["asset__contains"] = asset_contains
+
+    # Urgency/Severity filtering
+    if urgency_in is not None:
+        params["urgency__in"] = urgency_in
+
+    # Time filtering - open/creation time
+    if first_opened_at_gte is not None:
+        params["first_opened_at__gte"] = first_opened_at_gte
+    if first_opened_at_lte is not None:
+        params["first_opened_at__lte"] = first_opened_at_lte
+    if first_opened_at_range is not None:
+        params["first_opened_at__range"] = first_opened_at_range
+    if last_opened_at_gte is not None:
+        params["last_opened_at__gte"] = last_opened_at_gte
+    if last_opened_at_lte is not None:
+        params["last_opened_at__lte"] = last_opened_at_lte
+    if last_opened_at_range is not None:
+        params["last_opened_at__range"] = last_opened_at_range
+
+    # Time filtering - close time
+    if last_closed_at_gte is not None:
+        params["last_closed_at__gte"] = last_closed_at_gte
+    if last_closed_at_lte is not None:
+        params["last_closed_at__lte"] = last_closed_at_lte
+    if last_closed_at_range is not None:
+        params["last_closed_at__range"] = last_closed_at_range
+
+    # Standard parameters
     if limit is not None:
         params["limit"] = limit
     if offset is not None:
@@ -720,6 +900,20 @@ async def get_action_items_closed(
 async def get_action_items_all(
     asset: str | None = None,
     asset_contains: str | None = None,
+    # Urgency/Severity filtering
+    urgency_in: str | None = None,
+    # Time filtering - open/creation time
+    first_opened_at_gte: str | None = None,
+    first_opened_at_lte: str | None = None,
+    first_opened_at_range: str | None = None,
+    last_opened_at_gte: str | None = None,
+    last_opened_at_lte: str | None = None,
+    last_opened_at_range: str | None = None,
+    # Time filtering - close time
+    last_closed_at_gte: str | None = None,
+    last_closed_at_lte: str | None = None,
+    last_closed_at_range: str | None = None,
+    # Standard parameters
     limit: int | None = None,
     offset: int | None = None,
     ordering: str | None = None,
@@ -730,6 +924,24 @@ async def get_action_items_all(
     Args:
         asset: Filter by exact asset name (optional)
         asset_contains: Filter by assets containing this string (optional)
+
+        # Urgency/Severity Filtering
+        urgency_in: Filter by urgency/severity levels, comma-separated (optional)
+
+        # Time Filtering - Open/Creation Time
+        first_opened_at_gte: Filter items first opened on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        first_opened_at_lte: Filter items first opened on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        first_opened_at_range: Filter items first opened within datetime range, comma-separated (optional)
+        last_opened_at_gte: Filter items last opened on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_opened_at_lte: Filter items last opened on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_opened_at_range: Filter items last opened within datetime range, comma-separated (optional)
+
+        # Time Filtering - Close Time
+        last_closed_at_gte: Filter items closed on or after this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_closed_at_lte: Filter items closed on or before this datetime (YYYY-MM-DDTHH:MM:SS) (optional)
+        last_closed_at_range: Filter items closed within datetime range, comma-separated (optional)
+
+        # Standard Parameters
         limit: Number of results to return per page (optional)
         offset: The initial index from which to return the results (optional)
         ordering: Field to use for ordering results (optional)
@@ -740,6 +952,34 @@ async def get_action_items_all(
         params["asset"] = asset
     if asset_contains is not None:
         params["asset__contains"] = asset_contains
+
+    # Urgency/Severity filtering
+    if urgency_in is not None:
+        params["urgency__in"] = urgency_in
+
+    # Time filtering - open/creation time
+    if first_opened_at_gte is not None:
+        params["first_opened_at__gte"] = first_opened_at_gte
+    if first_opened_at_lte is not None:
+        params["first_opened_at__lte"] = first_opened_at_lte
+    if first_opened_at_range is not None:
+        params["first_opened_at__range"] = first_opened_at_range
+    if last_opened_at_gte is not None:
+        params["last_opened_at__gte"] = last_opened_at_gte
+    if last_opened_at_lte is not None:
+        params["last_opened_at__lte"] = last_opened_at_lte
+    if last_opened_at_range is not None:
+        params["last_opened_at__range"] = last_opened_at_range
+
+    # Time filtering - close time
+    if last_closed_at_gte is not None:
+        params["last_closed_at__gte"] = last_closed_at_gte
+    if last_closed_at_lte is not None:
+        params["last_closed_at__lte"] = last_closed_at_lte
+    if last_closed_at_range is not None:
+        params["last_closed_at__range"] = last_closed_at_range
+
+    # Standard parameters
     if limit is not None:
         params["limit"] = limit
     if offset is not None:
