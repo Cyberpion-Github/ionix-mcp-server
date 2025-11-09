@@ -1139,7 +1139,7 @@ async def list_mssp_sub_accounts(
     name_startswith: str | None = None,
     plan_in: str | None = None,
     risk_score_in: str | None = None,
-    scan_frequency_in: str | None = None,
+    scan_frequency_in: str | int | None = None,
     scan_status_in: str | None = None,
     tags_contains: str | None = None,
     tags_contains_ne: str | None = None,
@@ -1192,9 +1192,21 @@ async def list_mssp_sub_accounts(
         name_intext: Company name full-text search
         name_ne: Company name not equal
         name_startswith: Company name startswith
-        plan_in: Comma-separated plan values
+        plan_in: Comma-separated plan values. Valid options:
+            - Silver
+            - Gold
+            - Platinum
+            - Trial
+            - Inactive
         risk_score_in: Comma-separated risk scores
-        scan_frequency_in: Comma-separated scan frequencies
+        scan_frequency_in: Comma-separated scan frequencies. Valid options:
+            - 1000 (Daily option 0)
+            - 1001 (Daily option 1)
+            - 1002 (Daily option 2)
+            - 2000 (Weekly)
+            - 2001 (BiWeekly)
+            - 3000 (Monthly)
+            - 3001 (Quarterly)
         scan_status_in: Comma-separated scan statuses
         tags_contains: Tags contains
         tags_contains_ne: Tags contains (negated)
