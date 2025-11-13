@@ -1338,6 +1338,40 @@ async def get_mssp_sub_account(
     data = fetch(path, account_name=account_name)
     return str(data)
 
+# Scan history endpoint
+@mcp.tool()
+async def get_scan_history(
+    last_scan: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get aggregated scan history for the organization.
+
+    Returns detailed information about past scans including scan metadata, asset counts,
+    action items breakdown by type and urgency, and changes across scans.
+
+    Args:
+        last_scan: Number of most recent scans to retrieve (optional, e.g., 2 for last 2 scans)
+        account_name: Override the default account name from environment (optional)
+
+    Returns:
+        A list of scan details containing:
+        - Scan metadata: timestamp, type, duration, scan ID
+        - Asset counts: hosts by type, certificates, connections, logins
+        - Action items: total counts, breakdowns by type and urgency
+        - Scan changes: opened, closed, and reopened items
+        - Infrastructure: IP networks, cloud assets, compromised machines
+    """
+    params = {}
+    if last_scan is not None:
+        params["last_scan"] = last_scan
+
+    # Use the effective account name for the URL parameter
+    effective_account_name = account_name or ACCOUNT_NAME
+    params["account"] = effective_account_name
+
+    data = fetch("ionix-ai/scansdetails/", params=params, account_name=account_name)
+    return str(data)
+
 def main():
     """Main entry point for the IONIX MCP server."""
     api_key = os.getenv("IONIX_API_KEY")
