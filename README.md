@@ -75,6 +75,24 @@ Note: the IONIX MCP server is in beta.
 
 6. Restart Claude Desktop - you should see the IONIX MCP servers listed as an available "connector".
 
+## Privacy & Security Recommendations
+
+**Important:** When using the IONIX MCP server with AI tools like Claude Desktop, we strongly recommend disabling data collection and training features to protect your sensitive security data:
+
+### Claude Desktop
+1. Open Claude Desktop settings
+2. Navigate to the Privacy section
+3. **Disable "Help Improve Claude"** - This prevents your chats and coding sessions from being used to train and improve Anthropic AI models
+4. This ensures your IONIX security data remains private and is not used for model training purposes
+
+### Other AI Tools
+If you're using other AI agents or tools with this MCP server:
+- Look for similar privacy settings related to "data collection," "training," or "model improvement"
+- Disable any options that allow your conversations or data to be used for training purposes
+- Review the tool's privacy policy to understand how your data is handled
+
+**Why This Matters:** The IONIX MCP server provides access to sensitive security information including vulnerabilities, assets, and risk assessments. Ensuring this data is not collected or used for training purposes is critical for maintaining your organization's security posture and compliance requirements.
+
 ### Example Queries
 
 You can ask Claude to:
@@ -102,6 +120,54 @@ You can ask Claude to:
 - "List MSSP sub-accounts with name containing 'Acme'"
 - "Get MSSP sub-account details for company 'AcmeCo'"
 
+**Scan History & Trends:**
+- "Show me the last 2 scan results"
+- "Get scan history for the last 5 scans"
+- "Compare action items across the last 3 scans"
+- "Show me the scan duration and asset counts from recent scans"
+
 ### Multi-Account Support
 
 All tools support an optional `account_name` parameter for querying different IONIX accounts (for MSSPs).
+
+## Available Tools
+
+The IONIX MCP server provides the following tools:
+
+### Discovery & Assets
+- `get_discovery_org_assets` - Get organization assets with comprehensive filtering (technologies, IPs, ports, CVEs, etc.)
+- `get_discovery_certificates` - Get SSL/TLS certificates
+- `get_discovery_connections` - Get asset connections
+- `get_discovery_technologies` - Get technologies discovered on assets
+- `get_discovery_logins` - Get login assets
+- `get_discovery_managed_domains` - Get managed domains
+
+### Security Assessments
+- `get_attack_surface_risk_score` - Get attack surface risk scores
+- `get_attack_surface_risk_score_details` - Get detailed risk score information
+- `get_attack_surface_risk_score_issues` - Get issues contributing to risk scores
+- `get_assessments_digital_supply_chain` - Get external assets from digital supply chain assessment
+- `get_assessments_org_assets` - Get organization assets from assessments page
+
+### Remediation & Action Items
+- `get_action_items_open` - Get open action items with urgency and time filtering
+- `get_action_items_open_detailed` - Get detailed open action items
+- `get_action_items_closed` - Get closed action items
+- `get_action_items_all` - Get all action items (open and closed)
+
+### Scan History & Analytics
+- `get_scan_history` - **NEW!** Get aggregated scan history showing:
+  - Scan metadata (timestamp, type, duration, scan ID)
+  - Asset counts by type (domains, subdomains, IPs, certificates, connections)
+  - Action items breakdown by type and urgency
+  - Scan-to-scan changes (opened, closed, reopened items)
+  - Infrastructure details (IP networks, cloud assets, compromised machines)
+
+### Testing & Dashboard
+- `get_tests` - Get security test results
+- `get_dashboard_geomap` - Get geographic map data
+
+### MSSP Management
+- `get_mssp_company` - Get MSSP company information
+- `list_mssp_sub_accounts` - List MSSP sub-accounts with extensive filtering options
+- `get_mssp_sub_account` - Get a specific MSSP sub-account by company name
