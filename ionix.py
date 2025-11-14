@@ -1341,7 +1341,7 @@ async def get_mssp_sub_account(
 # Scan history endpoint
 @mcp.tool()
 async def get_scan_history(
-    last_scan: int | None = None,
+    last_scans: int | None = None,
     account_name: str | None = None
 ) -> str:
     """Get aggregated scan history for the organization.
@@ -1350,7 +1350,7 @@ async def get_scan_history(
     action items breakdown by type and urgency, and changes across scans.
 
     Args:
-        last_scan: Number of most recent scans to retrieve (optional, e.g., 2 for last 2 scans)
+        last_scans: Number of most recent scans to retrieve (optional, e.g., 2 for last 2 scans)
         account_name: Override the default account name from environment (optional)
 
     Returns:
@@ -1362,8 +1362,8 @@ async def get_scan_history(
         - Infrastructure: IP networks, cloud assets, compromised machines
     """
     params = {}
-    if last_scan is not None:
-        params["last_scan"] = last_scan
+    if last_scans is not None:
+        params["last_scans"] = last_scans
 
     # Use the effective account name for the URL parameter
     effective_account_name = account_name or ACCOUNT_NAME
