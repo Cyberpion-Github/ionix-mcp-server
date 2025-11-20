@@ -4,6 +4,16 @@ A Model Context Protocol (MCP) server that provides comprehensive tools for inte
 
 Note: the IONIX MCP server is in beta.
 
+## Prerequisites
+
+Before installing the IONIX MCP server, ensure you have the following:
+
+1. **Claude Desktop** - Download and install from [claude.ai/download](https://claude.ai/download)
+
+2. **Git** - Required for installing the MCP server from the repository:
+   - **macOS:** Install via [Homebrew](https://brew.sh/) (`brew install git`) or download from [git-scm.com](https://git-scm.com/download/mac)
+   - **Windows:** Download and install from [git-scm.com](https://git-scm.com/download/win)
+
 ## Usage
 
 1. Install uv if you haven't already ([installation guide for your OS](https://docs.astral.sh/uv/getting-started/installation/)):
@@ -11,7 +21,15 @@ Note: the IONIX MCP server is in beta.
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
 
-2. Locate or create the Claude Desktop configuration file. The location depends on your operating system:
+2. Locate or create the Claude Desktop configuration file:
+
+   **Option 1 - Via Claude Desktop Settings:**
+   - Open Claude Desktop
+   - Go to Settings (gear icon)
+   - Navigate to Developer section
+   - Click "Edit Config" to open the configuration file
+
+   **Option 2 - Manual file location** (varies by operating system):
    - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
    - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
@@ -73,7 +91,12 @@ Note: the IONIX MCP server is in beta.
    }
    ```
 
-6. Restart Claude Desktop - you should see the IONIX MCP servers listed as an available "connector".
+6. Restart Claude Desktop and verify the installation:
+   - After restarting, open Claude Desktop Settings
+   - Navigate to Developer section
+   - Look for "ionix" in the MCP Servers list
+   - Verify the status shows as "running"
+   - If it shows an error, check your configuration file for typos or incorrect paths
 
 ## Privacy & Security Recommendations
 
@@ -92,6 +115,32 @@ If you're using other AI agents or tools with this MCP server:
 - Review the tool's privacy policy to understand how your data is handled
 
 **Why This Matters:** The IONIX MCP server provides access to sensitive security information including vulnerabilities, assets, and risk assessments. Ensuring this data is not collected or used for training purposes is critical for maintaining your organization's security posture and compliance requirements.
+
+## Best Practices & Limitations
+
+### Context Window Limitations
+
+Large Language Models (LLMs) like Claude have a limited context window, which means they can only process a certain amount of information at once. To get the best results when using the IONIX MCP server:
+
+**Do:**
+- Ask for specific, filtered data (e.g., "Show me critical action items from the last week")
+- Use aggregated scan data from `get_scan_history` for historical analysis
+- Apply filters to narrow down results (e.g., by asset, risk score, urgency, date range)
+- Request summaries and counts for large datasets
+
+**Avoid:**
+- Requesting all action items without filters (this will likely exceed the context window)
+- Asking for complete exports of large datasets
+- Queries that return hundreds or thousands of individual items without aggregation
+
+**Example of Good Queries:**
+- "What are the high urgency action items for assets containing 'production' from the last 7 days?"
+- "Show me scan history for the last 5 scans and compare the number of critical findings"
+- "Get organization assets with risk score 'High' or 'Critical' that have open ports 22,3389"
+
+**Example of Problematic Queries:**
+- "Show me all action items" (too broad, will fill context window)
+- "List every asset in our organization with all their details" (too much data)
 
 ### Example Queries
 
