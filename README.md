@@ -41,6 +41,7 @@ Before installing the IONIX MCP server, ensure you have the following:
 
 4. Get your IONIX credentials:
    - **API Key:** Generate an API key in the IONIX platform under Settings -> API -> Create Token
+     - **Important:** Pay attention to the expiry date when creating the API key. After the expiry date, the IONIX MCP server will stop working until you generate a new API key and update your configuration
    - **Account Name:** Your IONIX account name (reach out to IONIX support if you need help finding it)
 
 5. Edit the configuration file:
