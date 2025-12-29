@@ -68,6 +68,8 @@ async def get_discovery_org_assets(
     confidence_level_in: str | None = None,
     maintenance_grade_in: str | None = None,
     waf_contains: str | None = None,
+    # Web Traffic
+    web_traffic_visits__gte: int | None = None,
     # Asset Classification
     type_in: str | None = None,
     is_parked_domain: bool | None = None,
@@ -119,6 +121,9 @@ async def get_discovery_org_assets(
         confidence_level_in: Filter by confidence levels, comma-separated (optional)
         maintenance_grade_in: Filter by maintenance grades, comma-separated (optional)
         waf_contains: Filter by WAF (Web Application Firewall) containing this string (optional)
+
+        # Web Traffic
+        web_traffic_visits__gte: Filter assets with web traffic visits greater than or equal to this number (optional)
 
         # Asset Classification
         type_in: Filter by asset types, comma-separated (optional)
@@ -194,6 +199,10 @@ async def get_discovery_org_assets(
         params["maintenance_grade__in"] = maintenance_grade_in
     if waf_contains is not None:
         params["waf__contains"] = waf_contains
+
+    # Web Traffic
+    if web_traffic_visits__gte is not None:
+        params["web_traffic_visits__gte"] = web_traffic_visits__gte
 
     # Asset Classification
     if type_in is not None:
