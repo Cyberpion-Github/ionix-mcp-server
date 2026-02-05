@@ -481,6 +481,7 @@ async def get_attack_surface_risk_score_issues(
 # Remediation endpoints
 @mcp.tool()
 async def get_action_items_open(
+    uuid: str | None = None,
     asset: str | None = None,
     asset_contains: str | None = None,
     title_contains: str | None = None,
@@ -506,6 +507,7 @@ async def get_action_items_open(
     """Get open action items for remediation.
 
     Args:
+        uuid: ID of a specific action item to fetch (optional)
         asset: Filter by exact asset name (optional)
         asset_contains: Filter by assets containing this string (optional)
         title_contains: Filter by title containing this string (optional)
@@ -533,6 +535,8 @@ async def get_action_items_open(
         account_name: Override the default account name from environment (optional)
     """
     params = {}
+    if uuid is not None:
+        params["uuid"] = uuid
     if asset is not None:
         params["asset"] = asset
     if asset_contains is not None:
@@ -579,6 +583,7 @@ async def get_action_items_open(
 
 @mcp.tool()
 async def get_action_items_open_detailed(
+    uuid: str | None = None,
     asset: str | None = None,
     # Urgency/Severity filtering
     urgency_in: str | None = None,
@@ -602,6 +607,7 @@ async def get_action_items_open_detailed(
     """Get detailed open action items for remediation.
 
     Args:
+        uuid: ID of a specific action item to fetch (optional)
         asset: Filter by exact asset name (optional)
 
         # Urgency/Severity Filtering
@@ -627,6 +633,8 @@ async def get_action_items_open_detailed(
         account_name: Override the default account name from environment (optional)
     """
     params = {}
+    if uuid is not None:
+        params["uuid"] = uuid
     if asset is not None:
         params["asset"] = asset
 
@@ -813,6 +821,7 @@ async def get_discovery_managed_domains(
 # Additional remediation endpoints
 @mcp.tool()
 async def get_action_items_closed(
+    uuid: str | None = None,
     asset: str | None = None,
     asset_contains: str | None = None,
     # Urgency/Severity filtering
@@ -837,6 +846,7 @@ async def get_action_items_closed(
     """Get closed action items.
 
     Args:
+        uuid: ID of a specific action item to fetch (optional)
         asset: Filter by exact asset name (optional)
         asset_contains: Filter by assets containing this string (optional)
 
@@ -863,6 +873,8 @@ async def get_action_items_closed(
         account_name: Override the default account name from environment (optional)
     """
     params = {}
+    if uuid is not None:
+        params["uuid"] = uuid
     if asset is not None:
         params["asset"] = asset
     if asset_contains is not None:
