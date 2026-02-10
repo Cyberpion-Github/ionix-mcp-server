@@ -221,3 +221,28 @@ The IONIX MCP server provides the following tools:
 - `get_mssp_company` - Get MSSP company information
 - `list_mssp_sub_accounts` - List MSSP sub-accounts with extensive filtering options
 - `get_mssp_sub_account` - Get a specific MSSP sub-account by company name
+
+## Agent Skills
+
+With the IONIX MCP installed, you can go a step further and use **AI agent skills** — pre-built instruction sets that guide AI agents to perform specific security workflows automatically. Skills work with AI coding agents such as [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenAI Codex](https://openai.com/index/codex/) to turn your IONIX data into actionable, evidence-backed results in seconds.
+
+### IONIX Action Item Validator
+
+The **IONIX Action Item Validator** is our first agent skill. It allows security teams to paste an IONIX Action Item URL directly into Claude Code or Codex and have the agent:
+
+1. **Fetch the finding details** live via the IONIX MCP
+2. **Run real validation checks** using any tools at the agent's disposal (curl, dig, openssl, browser screenshots, etc.)
+3. **Provide hard evidence** and a clear **VALID** / **INVALID** verdict
+4. **Generate a structured report** with exact commands, outputs, and recommendations
+
+This saves analysts significant time by eliminating manual reproduction work and providing copy-paste ready evidence for stakeholders.
+
+### Getting Started with Skills
+
+**Prerequisite:** The IONIX MCP server must already be installed and configured (see [Usage](#usage) above).
+
+Download the skill file from the [`skills/`](skills/) directory in this repository and install it in your AI agent. For installation instructions, refer to the official documentation for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) or [OpenAI Codex](https://developers.openai.com/codex/).
+
+Once installed, paste an IONIX Action Item URL (e.g., `https://portal.ionix.io/pages/actionItems/open?...&ai_id=...`) and the agent will automatically validate the finding.
+
+This is an initial release of our first agent skill, provided as a reference and starting point. We plan to improve it over time — anyone can customize and adapt the skill to fit their specific workflows. 
