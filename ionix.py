@@ -75,6 +75,11 @@ async def get_discovery_org_assets(
     is_parked_domain: bool | None = None,
     is_web_accessible: bool | None = None,
     tags_contains: str | None = None,
+    tags_contains_ne: str | None = None,
+    tags_in: str | None = None,
+    tags_isnull: bool | None = None,
+    tags_overlap: str | None = None,
+    tags_overlap_ne: str | None = None,
     # Date-based filtering
     first_seen_gte: str | None = None,
     first_seen_lte: str | None = None,
@@ -130,6 +135,11 @@ async def get_discovery_org_assets(
         is_parked_domain: Filter for parked domains (True/False) (optional)
         is_web_accessible: Filter for web accessible assets (True/False) (optional)
         tags_contains: Filter by tags containing this string (optional)
+        tags_contains_ne: Filter by tags not containing this string (optional)
+        tags_in: Filter by comma-separated tags (optional)
+        tags_isnull: Filter for assets with/without tags (True/False) (optional)
+        tags_overlap: Filter by assets with any of these comma-separated tags (optional)
+        tags_overlap_ne: Filter by assets without any of these comma-separated tags (optional)
 
         # Date-based Filtering
         first_seen_gte: Filter assets first seen on or after this date (YYYY-MM-DD) (optional)
@@ -213,6 +223,16 @@ async def get_discovery_org_assets(
         params["is_web_accessible"] = is_web_accessible
     if tags_contains is not None:
         params["tags__contains"] = tags_contains
+    if tags_contains_ne is not None:
+        params["tags__contains_ne"] = tags_contains_ne
+    if tags_in is not None:
+        params["tags__in"] = tags_in
+    if tags_isnull is not None:
+        params["tags__isnull"] = tags_isnull
+    if tags_overlap is not None:
+        params["tags__overlap"] = tags_overlap
+    if tags_overlap_ne is not None:
+        params["tags__overlap_ne"] = tags_overlap_ne
 
     # Date-based filtering
     if first_seen_gte is not None:
@@ -485,6 +505,13 @@ async def get_action_items_open(
     asset: str | None = None,
     asset_contains: str | None = None,
     title_contains: str | None = None,
+    # Tags filtering
+    tags_contains: str | None = None,
+    tags_contains_ne: str | None = None,
+    tags_in: str | None = None,
+    tags_isnull: bool | None = None,
+    tags_overlap: str | None = None,
+    tags_overlap_ne: str | None = None,
     # Urgency/Severity filtering
     urgency_in: str | None = None,
     # Time filtering - open/creation time
@@ -511,6 +538,14 @@ async def get_action_items_open(
         asset: Filter by exact asset name (optional)
         asset_contains: Filter by assets containing this string (optional)
         title_contains: Filter by title containing this string (optional)
+
+        # Tags Filtering
+        tags_contains: Filter by tags containing this string (optional)
+        tags_contains_ne: Filter by tags not containing this string (optional)
+        tags_in: Filter by comma-separated tags (optional)
+        tags_isnull: Filter for items with/without tags (True/False) (optional)
+        tags_overlap: Filter by items with any of these comma-separated tags (optional)
+        tags_overlap_ne: Filter by items without any of these comma-separated tags (optional)
 
         # Urgency/Severity Filtering
         urgency_in: Filter by urgency/severity levels, comma-separated (optional)
@@ -543,6 +578,20 @@ async def get_action_items_open(
         params["asset__contains"] = asset_contains
     if title_contains is not None:
         params["title__contains"] = title_contains
+
+    # Tags filtering
+    if tags_contains is not None:
+        params["tags__contains"] = tags_contains
+    if tags_contains_ne is not None:
+        params["tags__contains_ne"] = tags_contains_ne
+    if tags_in is not None:
+        params["tags__in"] = tags_in
+    if tags_isnull is not None:
+        params["tags__isnull"] = tags_isnull
+    if tags_overlap is not None:
+        params["tags__overlap"] = tags_overlap
+    if tags_overlap_ne is not None:
+        params["tags__overlap_ne"] = tags_overlap_ne
 
     # Urgency/Severity filtering
     if urgency_in is not None:
@@ -585,6 +634,13 @@ async def get_action_items_open(
 async def get_action_items_open_detailed(
     uuid: str | None = None,
     asset: str | None = None,
+    # Tags filtering
+    tags_contains: str | None = None,
+    tags_contains_ne: str | None = None,
+    tags_in: str | None = None,
+    tags_isnull: bool | None = None,
+    tags_overlap: str | None = None,
+    tags_overlap_ne: str | None = None,
     # Urgency/Severity filtering
     urgency_in: str | None = None,
     # Time filtering - open/creation time
@@ -609,6 +665,14 @@ async def get_action_items_open_detailed(
     Args:
         uuid: ID of a specific action item to fetch (optional)
         asset: Filter by exact asset name (optional)
+
+        # Tags Filtering
+        tags_contains: Filter by tags containing this string (optional)
+        tags_contains_ne: Filter by tags not containing this string (optional)
+        tags_in: Filter by comma-separated tags (optional)
+        tags_isnull: Filter for items with/without tags (True/False) (optional)
+        tags_overlap: Filter by items with any of these comma-separated tags (optional)
+        tags_overlap_ne: Filter by items without any of these comma-separated tags (optional)
 
         # Urgency/Severity Filtering
         urgency_in: Filter by urgency/severity levels, comma-separated (optional)
@@ -637,6 +701,20 @@ async def get_action_items_open_detailed(
         params["uuid"] = uuid
     if asset is not None:
         params["asset"] = asset
+
+    # Tags filtering
+    if tags_contains is not None:
+        params["tags__contains"] = tags_contains
+    if tags_contains_ne is not None:
+        params["tags__contains_ne"] = tags_contains_ne
+    if tags_in is not None:
+        params["tags__in"] = tags_in
+    if tags_isnull is not None:
+        params["tags__isnull"] = tags_isnull
+    if tags_overlap is not None:
+        params["tags__overlap"] = tags_overlap
+    if tags_overlap_ne is not None:
+        params["tags__overlap_ne"] = tags_overlap_ne
 
     # Urgency/Severity filtering
     if urgency_in is not None:
@@ -824,6 +902,13 @@ async def get_action_items_closed(
     uuid: str | None = None,
     asset: str | None = None,
     asset_contains: str | None = None,
+    # Tags filtering
+    tags_contains: str | None = None,
+    tags_contains_ne: str | None = None,
+    tags_in: str | None = None,
+    tags_isnull: bool | None = None,
+    tags_overlap: str | None = None,
+    tags_overlap_ne: str | None = None,
     # Urgency/Severity filtering
     urgency_in: str | None = None,
     # Time filtering - open/creation time
@@ -849,6 +934,14 @@ async def get_action_items_closed(
         uuid: ID of a specific action item to fetch (optional)
         asset: Filter by exact asset name (optional)
         asset_contains: Filter by assets containing this string (optional)
+
+        # Tags Filtering
+        tags_contains: Filter by tags containing this string (optional)
+        tags_contains_ne: Filter by tags not containing this string (optional)
+        tags_in: Filter by comma-separated tags (optional)
+        tags_isnull: Filter for items with/without tags (True/False) (optional)
+        tags_overlap: Filter by items with any of these comma-separated tags (optional)
+        tags_overlap_ne: Filter by items without any of these comma-separated tags (optional)
 
         # Urgency/Severity Filtering
         urgency_in: Filter by urgency/severity levels, comma-separated (optional)
@@ -879,6 +972,20 @@ async def get_action_items_closed(
         params["asset"] = asset
     if asset_contains is not None:
         params["asset__contains"] = asset_contains
+
+    # Tags filtering
+    if tags_contains is not None:
+        params["tags__contains"] = tags_contains
+    if tags_contains_ne is not None:
+        params["tags__contains_ne"] = tags_contains_ne
+    if tags_in is not None:
+        params["tags__in"] = tags_in
+    if tags_isnull is not None:
+        params["tags__isnull"] = tags_isnull
+    if tags_overlap is not None:
+        params["tags__overlap"] = tags_overlap
+    if tags_overlap_ne is not None:
+        params["tags__overlap_ne"] = tags_overlap_ne
 
     # Urgency/Severity filtering
     if urgency_in is not None:
@@ -921,6 +1028,13 @@ async def get_action_items_closed(
 async def get_action_items_all(
     asset: str | None = None,
     asset_contains: str | None = None,
+    # Tags filtering
+    tags_contains: str | None = None,
+    tags_contains_ne: str | None = None,
+    tags_in: str | None = None,
+    tags_isnull: bool | None = None,
+    tags_overlap: str | None = None,
+    tags_overlap_ne: str | None = None,
     # Urgency/Severity filtering
     urgency_in: str | None = None,
     # Time filtering - open/creation time
@@ -945,6 +1059,14 @@ async def get_action_items_all(
     Args:
         asset: Filter by exact asset name (optional)
         asset_contains: Filter by assets containing this string (optional)
+
+        # Tags Filtering
+        tags_contains: Filter by tags containing this string (optional)
+        tags_contains_ne: Filter by tags not containing this string (optional)
+        tags_in: Filter by comma-separated tags (optional)
+        tags_isnull: Filter for items with/without tags (True/False) (optional)
+        tags_overlap: Filter by items with any of these comma-separated tags (optional)
+        tags_overlap_ne: Filter by items without any of these comma-separated tags (optional)
 
         # Urgency/Severity Filtering
         urgency_in: Filter by urgency/severity levels, comma-separated (optional)
@@ -973,6 +1095,20 @@ async def get_action_items_all(
         params["asset"] = asset
     if asset_contains is not None:
         params["asset__contains"] = asset_contains
+
+    # Tags filtering
+    if tags_contains is not None:
+        params["tags__contains"] = tags_contains
+    if tags_contains_ne is not None:
+        params["tags__contains_ne"] = tags_contains_ne
+    if tags_in is not None:
+        params["tags__in"] = tags_in
+    if tags_isnull is not None:
+        params["tags__isnull"] = tags_isnull
+    if tags_overlap is not None:
+        params["tags__overlap"] = tags_overlap
+    if tags_overlap_ne is not None:
+        params["tags__overlap_ne"] = tags_overlap_ne
 
     # Urgency/Severity filtering
     if urgency_in is not None:
