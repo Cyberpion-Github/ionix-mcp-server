@@ -80,6 +80,17 @@ async def get_discovery_org_assets(
     tags_isnull: bool | None = None,
     tags_overlap: str | None = None,
     tags_overlap_ne: str | None = None,
+    # Operated By filtering
+    operated_by__contains: str | None = None,
+    operated_by__contains_ne: str | None = None,
+    operated_by__in: str | None = None,
+    operated_by__in_and: str | None = None,
+    operated_by__intext: str | None = None,
+    operated_by__intext_and: str | None = None,
+    operated_by__isnull: bool | None = None,
+    operated_by__overlap: str | None = None,
+    operated_by__overlap_ne: str | None = None,
+    operated_by__startswith: str | None = None,
     # Date-based filtering
     first_seen_gte: str | None = None,
     first_seen_lte: str | None = None,
@@ -140,6 +151,18 @@ async def get_discovery_org_assets(
         tags_isnull: Filter for assets with/without tags (True/False) (optional)
         tags_overlap: Filter by assets with any of these comma-separated tags (optional)
         tags_overlap_ne: Filter by assets without any of these comma-separated tags (optional)
+
+        # Operated By Filtering
+        operated_by__contains: Filter by operated_by containing this string (optional)
+        operated_by__contains_ne: Filter by operated_by not containing this string (optional)
+        operated_by__in: Filter by comma-separated operated_by values (optional)
+        operated_by__in_and: Filter by operated_by matching all comma-separated values (optional)
+        operated_by__intext: Filter by operated_by full-text search (optional)
+        operated_by__intext_and: Filter by operated_by full-text search matching all terms (optional)
+        operated_by__isnull: Filter for assets with/without operated_by (True/False) (optional)
+        operated_by__overlap: Filter by assets with any of these comma-separated operated_by values (optional)
+        operated_by__overlap_ne: Filter by assets without any of these comma-separated operated_by values (optional)
+        operated_by__startswith: Filter by operated_by starting with this string (optional)
 
         # Date-based Filtering
         first_seen_gte: Filter assets first seen on or after this date (YYYY-MM-DD) (optional)
@@ -233,6 +256,28 @@ async def get_discovery_org_assets(
         params["tags__overlap"] = tags_overlap
     if tags_overlap_ne is not None:
         params["tags__overlap_ne"] = tags_overlap_ne
+
+    # Operated By filtering
+    if operated_by__contains is not None:
+        params["operated_by__contains"] = operated_by__contains
+    if operated_by__contains_ne is not None:
+        params["operated_by__contains_ne"] = operated_by__contains_ne
+    if operated_by__in is not None:
+        params["operated_by__in"] = operated_by__in
+    if operated_by__in_and is not None:
+        params["operated_by__in_and"] = operated_by__in_and
+    if operated_by__intext is not None:
+        params["operated_by__intext"] = operated_by__intext
+    if operated_by__intext_and is not None:
+        params["operated_by__intext_and"] = operated_by__intext_and
+    if operated_by__isnull is not None:
+        params["operated_by__isnull"] = operated_by__isnull
+    if operated_by__overlap is not None:
+        params["operated_by__overlap"] = operated_by__overlap
+    if operated_by__overlap_ne is not None:
+        params["operated_by__overlap_ne"] = operated_by__overlap_ne
+    if operated_by__startswith is not None:
+        params["operated_by__startswith"] = operated_by__startswith
 
     # Date-based filtering
     if first_seen_gte is not None:
@@ -512,6 +557,17 @@ async def get_action_items_open(
     tags_isnull: bool | None = None,
     tags_overlap: str | None = None,
     tags_overlap_ne: str | None = None,
+    # Operated By filtering
+    operated_by__contains: str | None = None,
+    operated_by__contains_ne: str | None = None,
+    operated_by__in: str | None = None,
+    operated_by__in_and: str | None = None,
+    operated_by__intext: str | None = None,
+    operated_by__intext_and: str | None = None,
+    operated_by__isnull: bool | None = None,
+    operated_by__overlap: str | None = None,
+    operated_by__overlap_ne: str | None = None,
+    operated_by__startswith: str | None = None,
     # Urgency/Severity filtering
     urgency_in: str | None = None,
     # Time filtering - open/creation time
@@ -546,6 +602,18 @@ async def get_action_items_open(
         tags_isnull: Filter for items with/without tags (True/False) (optional)
         tags_overlap: Filter by items with any of these comma-separated tags (optional)
         tags_overlap_ne: Filter by items without any of these comma-separated tags (optional)
+
+        # Operated By Filtering
+        operated_by__contains: Filter by operated_by containing this string (optional)
+        operated_by__contains_ne: Filter by operated_by not containing this string (optional)
+        operated_by__in: Filter by comma-separated operated_by values (optional)
+        operated_by__in_and: Filter by operated_by matching all comma-separated values (optional)
+        operated_by__intext: Filter by operated_by full-text search (optional)
+        operated_by__intext_and: Filter by operated_by full-text search matching all terms (optional)
+        operated_by__isnull: Filter for items with/without operated_by (True/False) (optional)
+        operated_by__overlap: Filter by items with any of these comma-separated operated_by values (optional)
+        operated_by__overlap_ne: Filter by items without any of these comma-separated operated_by values (optional)
+        operated_by__startswith: Filter by operated_by starting with this string (optional)
 
         # Urgency/Severity Filtering
         urgency_in: Filter by urgency/severity levels, comma-separated (optional)
@@ -592,6 +660,28 @@ async def get_action_items_open(
         params["tags__overlap"] = tags_overlap
     if tags_overlap_ne is not None:
         params["tags__overlap_ne"] = tags_overlap_ne
+
+    # Operated By filtering
+    if operated_by__contains is not None:
+        params["operated_by__contains"] = operated_by__contains
+    if operated_by__contains_ne is not None:
+        params["operated_by__contains_ne"] = operated_by__contains_ne
+    if operated_by__in is not None:
+        params["operated_by__in"] = operated_by__in
+    if operated_by__in_and is not None:
+        params["operated_by__in_and"] = operated_by__in_and
+    if operated_by__intext is not None:
+        params["operated_by__intext"] = operated_by__intext
+    if operated_by__intext_and is not None:
+        params["operated_by__intext_and"] = operated_by__intext_and
+    if operated_by__isnull is not None:
+        params["operated_by__isnull"] = operated_by__isnull
+    if operated_by__overlap is not None:
+        params["operated_by__overlap"] = operated_by__overlap
+    if operated_by__overlap_ne is not None:
+        params["operated_by__overlap_ne"] = operated_by__overlap_ne
+    if operated_by__startswith is not None:
+        params["operated_by__startswith"] = operated_by__startswith
 
     # Urgency/Severity filtering
     if urgency_in is not None:
@@ -641,6 +731,17 @@ async def get_action_items_open_detailed(
     tags_isnull: bool | None = None,
     tags_overlap: str | None = None,
     tags_overlap_ne: str | None = None,
+    # Operated By filtering
+    operated_by__contains: str | None = None,
+    operated_by__contains_ne: str | None = None,
+    operated_by__in: str | None = None,
+    operated_by__in_and: str | None = None,
+    operated_by__intext: str | None = None,
+    operated_by__intext_and: str | None = None,
+    operated_by__isnull: bool | None = None,
+    operated_by__overlap: str | None = None,
+    operated_by__overlap_ne: str | None = None,
+    operated_by__startswith: str | None = None,
     # Urgency/Severity filtering
     urgency_in: str | None = None,
     # Time filtering - open/creation time
@@ -673,6 +774,18 @@ async def get_action_items_open_detailed(
         tags_isnull: Filter for items with/without tags (True/False) (optional)
         tags_overlap: Filter by items with any of these comma-separated tags (optional)
         tags_overlap_ne: Filter by items without any of these comma-separated tags (optional)
+
+        # Operated By Filtering
+        operated_by__contains: Filter by operated_by containing this string (optional)
+        operated_by__contains_ne: Filter by operated_by not containing this string (optional)
+        operated_by__in: Filter by comma-separated operated_by values (optional)
+        operated_by__in_and: Filter by operated_by matching all comma-separated values (optional)
+        operated_by__intext: Filter by operated_by full-text search (optional)
+        operated_by__intext_and: Filter by operated_by full-text search matching all terms (optional)
+        operated_by__isnull: Filter for items with/without operated_by (True/False) (optional)
+        operated_by__overlap: Filter by items with any of these comma-separated operated_by values (optional)
+        operated_by__overlap_ne: Filter by items without any of these comma-separated operated_by values (optional)
+        operated_by__startswith: Filter by operated_by starting with this string (optional)
 
         # Urgency/Severity Filtering
         urgency_in: Filter by urgency/severity levels, comma-separated (optional)
@@ -715,6 +828,28 @@ async def get_action_items_open_detailed(
         params["tags__overlap"] = tags_overlap
     if tags_overlap_ne is not None:
         params["tags__overlap_ne"] = tags_overlap_ne
+
+    # Operated By filtering
+    if operated_by__contains is not None:
+        params["operated_by__contains"] = operated_by__contains
+    if operated_by__contains_ne is not None:
+        params["operated_by__contains_ne"] = operated_by__contains_ne
+    if operated_by__in is not None:
+        params["operated_by__in"] = operated_by__in
+    if operated_by__in_and is not None:
+        params["operated_by__in_and"] = operated_by__in_and
+    if operated_by__intext is not None:
+        params["operated_by__intext"] = operated_by__intext
+    if operated_by__intext_and is not None:
+        params["operated_by__intext_and"] = operated_by__intext_and
+    if operated_by__isnull is not None:
+        params["operated_by__isnull"] = operated_by__isnull
+    if operated_by__overlap is not None:
+        params["operated_by__overlap"] = operated_by__overlap
+    if operated_by__overlap_ne is not None:
+        params["operated_by__overlap_ne"] = operated_by__overlap_ne
+    if operated_by__startswith is not None:
+        params["operated_by__startswith"] = operated_by__startswith
 
     # Urgency/Severity filtering
     if urgency_in is not None:
@@ -821,6 +956,18 @@ async def get_discovery_logins(
     asset: str | None = None,
     asset_contains: str | None = None,
     username_contains: str | None = None,
+    # Operated By filtering
+    operated_by__contains: str | None = None,
+    operated_by__contains_ne: str | None = None,
+    operated_by__in: str | None = None,
+    operated_by__in_and: str | None = None,
+    operated_by__intext: str | None = None,
+    operated_by__intext_and: str | None = None,
+    operated_by__isnull: bool | None = None,
+    operated_by__overlap: str | None = None,
+    operated_by__overlap_ne: str | None = None,
+    operated_by__startswith: str | None = None,
+    # Standard parameters
     limit: int | None = None,
     offset: int | None = None,
     search: str | None = None,
@@ -833,6 +980,20 @@ async def get_discovery_logins(
         asset: Filter by exact asset name (optional)
         asset_contains: Filter by assets containing this string (optional)
         username_contains: Filter by usernames containing this string (optional)
+
+        # Operated By Filtering
+        operated_by__contains: Filter by operated_by containing this string (optional)
+        operated_by__contains_ne: Filter by operated_by not containing this string (optional)
+        operated_by__in: Filter by comma-separated operated_by values (optional)
+        operated_by__in_and: Filter by operated_by matching all comma-separated values (optional)
+        operated_by__intext: Filter by operated_by full-text search (optional)
+        operated_by__intext_and: Filter by operated_by full-text search matching all terms (optional)
+        operated_by__isnull: Filter for logins with/without operated_by (True/False) (optional)
+        operated_by__overlap: Filter by logins with any of these comma-separated operated_by values (optional)
+        operated_by__overlap_ne: Filter by logins without any of these comma-separated operated_by values (optional)
+        operated_by__startswith: Filter by operated_by starting with this string (optional)
+
+        # Standard Parameters
         limit: Number of results to return per page (optional)
         offset: The initial index from which to return the results (optional)
         search: Search term to filter results (optional)
@@ -846,6 +1007,29 @@ async def get_discovery_logins(
         params["asset__contains"] = asset_contains
     if username_contains is not None:
         params["username__contains"] = username_contains
+
+    # Operated By filtering
+    if operated_by__contains is not None:
+        params["operated_by__contains"] = operated_by__contains
+    if operated_by__contains_ne is not None:
+        params["operated_by__contains_ne"] = operated_by__contains_ne
+    if operated_by__in is not None:
+        params["operated_by__in"] = operated_by__in
+    if operated_by__in_and is not None:
+        params["operated_by__in_and"] = operated_by__in_and
+    if operated_by__intext is not None:
+        params["operated_by__intext"] = operated_by__intext
+    if operated_by__intext_and is not None:
+        params["operated_by__intext_and"] = operated_by__intext_and
+    if operated_by__isnull is not None:
+        params["operated_by__isnull"] = operated_by__isnull
+    if operated_by__overlap is not None:
+        params["operated_by__overlap"] = operated_by__overlap
+    if operated_by__overlap_ne is not None:
+        params["operated_by__overlap_ne"] = operated_by__overlap_ne
+    if operated_by__startswith is not None:
+        params["operated_by__startswith"] = operated_by__startswith
+
     if limit is not None:
         params["limit"] = limit
     if offset is not None:
@@ -909,6 +1093,17 @@ async def get_action_items_closed(
     tags_isnull: bool | None = None,
     tags_overlap: str | None = None,
     tags_overlap_ne: str | None = None,
+    # Operated By filtering
+    operated_by__contains: str | None = None,
+    operated_by__contains_ne: str | None = None,
+    operated_by__in: str | None = None,
+    operated_by__in_and: str | None = None,
+    operated_by__intext: str | None = None,
+    operated_by__intext_and: str | None = None,
+    operated_by__isnull: bool | None = None,
+    operated_by__overlap: str | None = None,
+    operated_by__overlap_ne: str | None = None,
+    operated_by__startswith: str | None = None,
     # Urgency/Severity filtering
     urgency_in: str | None = None,
     # Time filtering - open/creation time
@@ -942,6 +1137,18 @@ async def get_action_items_closed(
         tags_isnull: Filter for items with/without tags (True/False) (optional)
         tags_overlap: Filter by items with any of these comma-separated tags (optional)
         tags_overlap_ne: Filter by items without any of these comma-separated tags (optional)
+
+        # Operated By Filtering
+        operated_by__contains: Filter by operated_by containing this string (optional)
+        operated_by__contains_ne: Filter by operated_by not containing this string (optional)
+        operated_by__in: Filter by comma-separated operated_by values (optional)
+        operated_by__in_and: Filter by operated_by matching all comma-separated values (optional)
+        operated_by__intext: Filter by operated_by full-text search (optional)
+        operated_by__intext_and: Filter by operated_by full-text search matching all terms (optional)
+        operated_by__isnull: Filter for items with/without operated_by (True/False) (optional)
+        operated_by__overlap: Filter by items with any of these comma-separated operated_by values (optional)
+        operated_by__overlap_ne: Filter by items without any of these comma-separated operated_by values (optional)
+        operated_by__startswith: Filter by operated_by starting with this string (optional)
 
         # Urgency/Severity Filtering
         urgency_in: Filter by urgency/severity levels, comma-separated (optional)
@@ -986,6 +1193,28 @@ async def get_action_items_closed(
         params["tags__overlap"] = tags_overlap
     if tags_overlap_ne is not None:
         params["tags__overlap_ne"] = tags_overlap_ne
+
+    # Operated By filtering
+    if operated_by__contains is not None:
+        params["operated_by__contains"] = operated_by__contains
+    if operated_by__contains_ne is not None:
+        params["operated_by__contains_ne"] = operated_by__contains_ne
+    if operated_by__in is not None:
+        params["operated_by__in"] = operated_by__in
+    if operated_by__in_and is not None:
+        params["operated_by__in_and"] = operated_by__in_and
+    if operated_by__intext is not None:
+        params["operated_by__intext"] = operated_by__intext
+    if operated_by__intext_and is not None:
+        params["operated_by__intext_and"] = operated_by__intext_and
+    if operated_by__isnull is not None:
+        params["operated_by__isnull"] = operated_by__isnull
+    if operated_by__overlap is not None:
+        params["operated_by__overlap"] = operated_by__overlap
+    if operated_by__overlap_ne is not None:
+        params["operated_by__overlap_ne"] = operated_by__overlap_ne
+    if operated_by__startswith is not None:
+        params["operated_by__startswith"] = operated_by__startswith
 
     # Urgency/Severity filtering
     if urgency_in is not None:
@@ -1035,6 +1264,17 @@ async def get_action_items_all(
     tags_isnull: bool | None = None,
     tags_overlap: str | None = None,
     tags_overlap_ne: str | None = None,
+    # Operated By filtering
+    operated_by__contains: str | None = None,
+    operated_by__contains_ne: str | None = None,
+    operated_by__in: str | None = None,
+    operated_by__in_and: str | None = None,
+    operated_by__intext: str | None = None,
+    operated_by__intext_and: str | None = None,
+    operated_by__isnull: bool | None = None,
+    operated_by__overlap: str | None = None,
+    operated_by__overlap_ne: str | None = None,
+    operated_by__startswith: str | None = None,
     # Urgency/Severity filtering
     urgency_in: str | None = None,
     # Time filtering - open/creation time
@@ -1067,6 +1307,18 @@ async def get_action_items_all(
         tags_isnull: Filter for items with/without tags (True/False) (optional)
         tags_overlap: Filter by items with any of these comma-separated tags (optional)
         tags_overlap_ne: Filter by items without any of these comma-separated tags (optional)
+
+        # Operated By Filtering
+        operated_by__contains: Filter by operated_by containing this string (optional)
+        operated_by__contains_ne: Filter by operated_by not containing this string (optional)
+        operated_by__in: Filter by comma-separated operated_by values (optional)
+        operated_by__in_and: Filter by operated_by matching all comma-separated values (optional)
+        operated_by__intext: Filter by operated_by full-text search (optional)
+        operated_by__intext_and: Filter by operated_by full-text search matching all terms (optional)
+        operated_by__isnull: Filter for items with/without operated_by (True/False) (optional)
+        operated_by__overlap: Filter by items with any of these comma-separated operated_by values (optional)
+        operated_by__overlap_ne: Filter by items without any of these comma-separated operated_by values (optional)
+        operated_by__startswith: Filter by operated_by starting with this string (optional)
 
         # Urgency/Severity Filtering
         urgency_in: Filter by urgency/severity levels, comma-separated (optional)
@@ -1109,6 +1361,28 @@ async def get_action_items_all(
         params["tags__overlap"] = tags_overlap
     if tags_overlap_ne is not None:
         params["tags__overlap_ne"] = tags_overlap_ne
+
+    # Operated By filtering
+    if operated_by__contains is not None:
+        params["operated_by__contains"] = operated_by__contains
+    if operated_by__contains_ne is not None:
+        params["operated_by__contains_ne"] = operated_by__contains_ne
+    if operated_by__in is not None:
+        params["operated_by__in"] = operated_by__in
+    if operated_by__in_and is not None:
+        params["operated_by__in_and"] = operated_by__in_and
+    if operated_by__intext is not None:
+        params["operated_by__intext"] = operated_by__intext
+    if operated_by__intext_and is not None:
+        params["operated_by__intext_and"] = operated_by__intext_and
+    if operated_by__isnull is not None:
+        params["operated_by__isnull"] = operated_by__isnull
+    if operated_by__overlap is not None:
+        params["operated_by__overlap"] = operated_by__overlap
+    if operated_by__overlap_ne is not None:
+        params["operated_by__overlap_ne"] = operated_by__overlap_ne
+    if operated_by__startswith is not None:
+        params["operated_by__startswith"] = operated_by__startswith
 
     # Urgency/Severity filtering
     if urgency_in is not None:
@@ -1201,6 +1475,18 @@ async def get_assessments_org_assets(
     importance_in: str | None = None,
     risk_score_in: str | None = None,
     technologies_contains: str | None = None,
+    # Operated By filtering
+    operated_by__contains: str | None = None,
+    operated_by__contains_ne: str | None = None,
+    operated_by__in: str | None = None,
+    operated_by__in_and: str | None = None,
+    operated_by__intext: str | None = None,
+    operated_by__intext_and: str | None = None,
+    operated_by__isnull: bool | None = None,
+    operated_by__overlap: str | None = None,
+    operated_by__overlap_ne: str | None = None,
+    operated_by__startswith: str | None = None,
+    # Standard parameters
     limit: int | None = None,
     offset: int | None = None,
     search: str | None = None,
@@ -1215,6 +1501,20 @@ async def get_assessments_org_assets(
         importance_in: Filter by importance levels, comma-separated (optional)
         risk_score_in: Filter by risk score levels, comma-separated (optional)
         technologies_contains: Filter by technologies containing this string (optional)
+
+        # Operated By Filtering
+        operated_by__contains: Filter by operated_by containing this string (optional)
+        operated_by__contains_ne: Filter by operated_by not containing this string (optional)
+        operated_by__in: Filter by comma-separated operated_by values (optional)
+        operated_by__in_and: Filter by operated_by matching all comma-separated values (optional)
+        operated_by__intext: Filter by operated_by full-text search (optional)
+        operated_by__intext_and: Filter by operated_by full-text search matching all terms (optional)
+        operated_by__isnull: Filter for assets with/without operated_by (True/False) (optional)
+        operated_by__overlap: Filter by assets with any of these comma-separated operated_by values (optional)
+        operated_by__overlap_ne: Filter by assets without any of these comma-separated operated_by values (optional)
+        operated_by__startswith: Filter by operated_by starting with this string (optional)
+
+        # Standard Parameters
         limit: Number of results to return per page (optional)
         offset: The initial index from which to return the results (optional)
         search: Search term to filter results (optional)
@@ -1232,6 +1532,29 @@ async def get_assessments_org_assets(
         params["risk_score__in"] = risk_score_in
     if technologies_contains is not None:
         params["technologies__contains"] = technologies_contains
+
+    # Operated By filtering
+    if operated_by__contains is not None:
+        params["operated_by__contains"] = operated_by__contains
+    if operated_by__contains_ne is not None:
+        params["operated_by__contains_ne"] = operated_by__contains_ne
+    if operated_by__in is not None:
+        params["operated_by__in"] = operated_by__in
+    if operated_by__in_and is not None:
+        params["operated_by__in_and"] = operated_by__in_and
+    if operated_by__intext is not None:
+        params["operated_by__intext"] = operated_by__intext
+    if operated_by__intext_and is not None:
+        params["operated_by__intext_and"] = operated_by__intext_and
+    if operated_by__isnull is not None:
+        params["operated_by__isnull"] = operated_by__isnull
+    if operated_by__overlap is not None:
+        params["operated_by__overlap"] = operated_by__overlap
+    if operated_by__overlap_ne is not None:
+        params["operated_by__overlap_ne"] = operated_by__overlap_ne
+    if operated_by__startswith is not None:
+        params["operated_by__startswith"] = operated_by__startswith
+
     if limit is not None:
         params["limit"] = limit
     if offset is not None:
