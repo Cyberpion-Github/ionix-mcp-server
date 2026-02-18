@@ -1852,6 +1852,31 @@ async def get_scan_history(
     data = fetch("ionix-ai/scansdetails/", params=params, account_name=account_name)
     return str(data)
 
+@mcp.tool()
+async def get_discovery_evidence(
+    asset: str | None = None,
+    account_name: str | None = None
+) -> str:
+    """Export discovery evidence for a specific asset, explaining why IONIX believes the asset belongs to the organization.
+
+    Returns a list of evidence objects, each containing a "Field Value" (e.g. a WHOIS record value,
+    DNS record, or registration detail found on the asset) and a "Reference Field Value" (the
+    corresponding value from the organization's confirmed/seed assets that matches it).
+
+    This is useful for understanding the attribution chain that links a discovered asset back to
+    the organization, and for validating or auditing asset ownership.
+
+    Args:
+        asset: The asset to get discovery evidence for (e.g. domain name, IP address)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if asset is not None:
+        params["asset"] = asset
+
+    data = fetch("discovery/org-assets/export-discovery-evidence/", params=params, account_name=account_name)
+    return str(data)
+
 # Settings endpoints
 @mcp.tool()
 async def get_settings_groups(

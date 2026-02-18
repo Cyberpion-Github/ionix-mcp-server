@@ -191,6 +191,7 @@ The IONIX MCP server provides the following tools:
 - `get_discovery_technologies` - Get technologies discovered on assets
 - `get_discovery_logins` - Get login assets
 - `get_discovery_managed_domains` - Get managed domains
+- `get_discovery_evidence` - Export discovery evidence for an asset, showing why IONIX attributes it to the organization
 
 ### Security Assessments
 - `get_attack_surface_risk_score` - Get attack surface risk scores
