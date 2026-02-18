@@ -71,7 +71,7 @@ async def get_discovery_org_assets(
     # Web Traffic
     web_traffic_visits__gte: int | None = None,
     # Asset Classification
-    type_in: str | None = None,
+    type_in: str | int | None = None,
     is_parked_domain: bool | None = None,
     is_web_accessible: bool | None = None,
     tags_contains: str | None = None,
@@ -101,6 +101,7 @@ async def get_discovery_org_assets(
     registrant_organization_contains: str | None = None,
     whois_emails_contains: str | None = None,
     # Standard parameters
+    fields: str | None = None,
     limit: int | None = None,
     offset: int | None = None,
     search: str | None = None,
@@ -176,6 +177,7 @@ async def get_discovery_org_assets(
         whois_emails_contains: Filter by WHOIS emails containing this string (optional)
 
         # Standard Parameters
+        fields: Comma-separated list of field names to include in the response (e.g. "asset,type,risk_score"). If not specified, all fields are returned (optional)
         limit: Number of results to return per page (optional)
         offset: The initial index from which to return the results (optional)
         search: Search term to filter results (optional)
@@ -239,7 +241,7 @@ async def get_discovery_org_assets(
 
     # Asset Classification
     if type_in is not None:
-        params["type__in"] = type_in
+        params["type__in"] = str(type_in)
     if is_parked_domain is not None:
         params["is_parked_domain"] = is_parked_domain
     if is_web_accessible is not None:
@@ -308,6 +310,15 @@ async def get_discovery_org_assets(
         params["ordering"] = ordering
 
     data = fetch("discovery/org-assets/", params=params, account_name=account_name)
+
+    # Client-side field filtering
+    if fields is not None and isinstance(data, dict) and "results" in data:
+        requested = [f.strip() for f in fields.split(",")]
+        data["results"] = [
+            {k: v for k, v in item.items() if k in requested}
+            for item in data["results"]
+        ]
+
     return str(data)
 
 @mcp.tool()
