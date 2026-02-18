@@ -142,7 +142,7 @@ async def get_discovery_org_assets(
         web_traffic_visits__gte: Filter assets with web traffic visits greater than or equal to this number (optional)
 
         # Asset Classification
-        type_in: Filter by asset types, comma-separated. Values: 0=Domain, 1=Subdomain, 2=Managed Domain, 3=IP Address, 5=Cloud Asset (optional)
+        type_in: Filter by asset types as a comma-separated string (e.g. "0,1,3"). Values: 0=Domain, 1=Subdomain, 2=Managed Domain, 3=IP Address, 5=Cloud Asset (optional)
         is_parked_domain: Filter for parked domains (True/False) (optional)
         is_web_accessible: Filter for web accessible assets (True/False) (optional)
         tags_contains: Filter by tags containing this string (optional)
