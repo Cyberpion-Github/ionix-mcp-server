@@ -217,6 +217,9 @@ The IONIX MCP server provides the following tools:
 - `get_tests` - Get security test results
 - `get_dashboard_geomap` - Get geographic map data
 
+### Settings
+- `get_settings_groups` - Get all groups and subsidiaries configured in the IONIX account
+
 ### MSSP Management
 - `get_mssp_company` - Get MSSP company information
 - `list_mssp_sub_accounts` - List MSSP sub-accounts with extensive filtering options

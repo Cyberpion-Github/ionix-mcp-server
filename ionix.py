@@ -1852,6 +1852,24 @@ async def get_scan_history(
     data = fetch("ionix-ai/scansdetails/", params=params, account_name=account_name)
     return str(data)
 
+# Settings endpoints
+@mcp.tool()
+async def get_settings_groups(
+    account_name: str | None = None
+) -> str:
+    """Get all groups and subsidiaries configured in the IONIX account.
+
+    Returns a list of groups and subsidiaries defined in the organization's IONIX settings.
+    Groups and subsidiaries are used to organize and segment assets across the attack surface.
+    This is useful for understanding the organizational structure, scoping reports,
+    and filtering assets or action items by group or subsidiary.
+
+    Args:
+        account_name: Override the default account name from environment (optional)
+    """
+    data = fetch("settings/groups/", account_name=account_name)
+    return str(data)
+
 def main():
     """Main entry point for the IONIX MCP server."""
     api_key = os.getenv("IONIX_API_KEY")
