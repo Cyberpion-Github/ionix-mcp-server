@@ -71,7 +71,7 @@ async def get_discovery_org_assets(
     # Web Traffic
     web_traffic_visits__gte: int | None = None,
     # Asset Classification
-    type_in: str | None = None,
+    type_in: str | int | None = None,
     is_parked_domain: bool | None = None,
     is_web_accessible: bool | None = None,
     tags_contains: str | None = None,
@@ -101,6 +101,7 @@ async def get_discovery_org_assets(
     registrant_organization_contains: str | None = None,
     whois_emails_contains: str | None = None,
     # Standard parameters
+    fields: str | None = None,
     limit: int | None = None,
     offset: int | None = None,
     search: str | None = None,
@@ -176,6 +177,7 @@ async def get_discovery_org_assets(
         whois_emails_contains: Filter by WHOIS emails containing this string (optional)
 
         # Standard Parameters
+        fields: Comma-separated list of field names to include in the response (e.g. "asset,type,risk_score"). If not specified, all fields are returned (optional)
         limit: Number of results to return per page (optional)
         offset: The initial index from which to return the results (optional)
         search: Search term to filter results (optional)
@@ -239,7 +241,7 @@ async def get_discovery_org_assets(
 
     # Asset Classification
     if type_in is not None:
-        params["type__in"] = type_in
+        params["type__in"] = str(type_in)
     if is_parked_domain is not None:
         params["is_parked_domain"] = is_parked_domain
     if is_web_accessible is not None:
@@ -308,6 +310,15 @@ async def get_discovery_org_assets(
         params["ordering"] = ordering
 
     data = fetch("discovery/org-assets/", params=params, account_name=account_name)
+
+    # Client-side field filtering
+    if fields is not None and isinstance(data, dict) and "results" in data:
+        requested = [f.strip() for f in fields.split(",")]
+        data["results"] = [
+            {k: v for k, v in item.items() if k in requested}
+            for item in data["results"]
+        ]
+
     return str(data)
 
 @mcp.tool()
@@ -1893,6 +1904,279 @@ async def get_settings_groups(
         account_name: Override the default account name from environment (optional)
     """
     data = fetch("settings/groups/", account_name=account_name)
+    return str(data)
+
+# Security Score endpoints
+# NOTE: "Security Score" here refers to the IONIX scoring/score/* endpoints, which are
+# distinct from the "Attack Surface Risk Score" exposed by the assessments/attack-surface-risk-score/* tools.
+@mcp.tool()
+async def get_security_score(
+    group: str | None = None,
+    date: str | None = None,
+    search: str | None = None,
+    ordering: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get the IONIX Security Score for the organization or a specific group/subsidiary.
+
+    The Security Score is distinct from the Attack Surface Risk Score: it is IONIX's
+    overall posture grade for the account (or a specific group), suitable for executive
+    reporting and tracking posture over time.
+
+    Args:
+        group: Group/subsidiary name. When null or omitted, returns the org-level score (optional)
+        date: Date in YYYY-MM-DD format. Without group, returns scores for all entities on that date (optional)
+        search: Free-text search term (optional)
+        ordering: Field to use for ordering results (optional)
+        limit: Number of results to return per page (optional)
+        offset: The initial index from which to return the results (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if group is not None:
+        params["group"] = group
+    if date is not None:
+        params["date"] = date
+    if search is not None:
+        params["search"] = search
+    if ordering is not None:
+        params["ordering"] = ordering
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+
+    data = fetch("scoring/score/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_security_score_benchmark(
+    search: str | None = None,
+    ordering: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get the IONIX Security Score benchmark, comparing the organization to peers.
+
+    Returns benchmark data that places the account's Security Score in context against
+    industry peers or relevant cohorts. Useful for executive briefings and answering
+    "how do we compare to others?". Distinct from the Attack Surface Risk Score.
+
+    Args:
+        search: Free-text search term (optional)
+        ordering: Field to use for ordering results (optional)
+        limit: Number of results to return per page (optional)
+        offset: The initial index from which to return the results (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if search is not None:
+        params["search"] = search
+    if ordering is not None:
+        params["ordering"] = ordering
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+
+    data = fetch("scoring/score/benchmark/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_security_score_history(
+    group: str | None = None,
+    search: str | None = None,
+    ordering: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get the historical IONIX Security Score over time for the organization or a group/subsidiary.
+
+    Returns a time series of Security Score values, useful for trend analysis and answering
+    "is our security posture improving?". Distinct from the Attack Surface Risk Score.
+
+    Args:
+        group: Group/subsidiary name. When null or omitted, returns the org-level history (optional)
+        search: Free-text search term (optional)
+        ordering: Field to use for ordering results (optional)
+        limit: Number of results to return per page (optional)
+        offset: The initial index from which to return the results (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if group is not None:
+        params["group"] = group
+    if search is not None:
+        params["search"] = search
+    if ordering is not None:
+        params["ordering"] = ordering
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+
+    data = fetch("scoring/score/history/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_action_item_open_details(
+    id: str,
+    global_filter: str | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get the full details of a single open action item by its ID.
+
+    Use this to drill down into a specific action item (e.g. when a user pastes a portal link
+    or references an action item ID from a list result). Returns the complete record including
+    fields not present in the list views.
+
+    Args:
+        id: The action item ID (required)
+        global_filter: Optional global filter logic to apply (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if global_filter is not None:
+        params["global_filter"] = global_filter
+
+    data = fetch(f"remediation/action-items/open/{id}/", params=params, account_name=account_name)
+    return str(data)
+
+# Configuration tag endpoints
+@mcp.tool()
+async def get_action_item_tags(
+    search: str | None = None,
+    ordering: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get all tags configured for action items in the IONIX account.
+
+    Returns the customer's action-item tag taxonomy. Useful for filtering action items
+    by the customer's own labels (e.g. team ownership, severity bucket, project tag).
+
+    Args:
+        search: Free-text search term (optional)
+        ordering: Field to use for ordering results (optional)
+        limit: Number of results to return per page (optional)
+        offset: The initial index from which to return the results (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if search is not None:
+        params["search"] = search
+    if ordering is not None:
+        params["ordering"] = ordering
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+
+    data = fetch("configuration/tags/action-item-tags/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_company_tags(
+    search: str | None = None,
+    ordering: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get all company-level tags configured in the IONIX account.
+
+    Returns the customer's company-tag taxonomy, used for organization-wide labeling
+    in the IONIX portal.
+
+    Args:
+        search: Free-text search term (optional)
+        ordering: Field to use for ordering results (optional)
+        limit: Number of results to return per page (optional)
+        offset: The initial index from which to return the results (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if search is not None:
+        params["search"] = search
+    if ordering is not None:
+        params["ordering"] = ordering
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+
+    data = fetch("configuration/tags/company-tags/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_login_assets_tags(
+    search: str | None = None,
+    ordering: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get all tags configured for login assets in the IONIX account.
+
+    Returns the customer's login-asset tag taxonomy. Useful for filtering login assets
+    by the customer's own labels.
+
+    Args:
+        search: Free-text search term (optional)
+        ordering: Field to use for ordering results (optional)
+        limit: Number of results to return per page (optional)
+        offset: The initial index from which to return the results (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if search is not None:
+        params["search"] = search
+    if ordering is not None:
+        params["ordering"] = ordering
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+
+    data = fetch("configuration/tags/login-assets-tags/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_org_assets_tags(
+    search: str | None = None,
+    ordering: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get all tags configured for organizational assets in the IONIX account.
+
+    Returns the customer's org-asset tag taxonomy. Useful for filtering org assets
+    by the customer's own labels (e.g. business unit, environment, owner).
+
+    Args:
+        search: Free-text search term (optional)
+        ordering: Field to use for ordering results (optional)
+        limit: Number of results to return per page (optional)
+        offset: The initial index from which to return the results (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if search is not None:
+        params["search"] = search
+    if ordering is not None:
+        params["ordering"] = ordering
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+
+    data = fetch("configuration/tags/org-assets-tags/", params=params, account_name=account_name)
     return str(data)
 
 def main():
