@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  mcp-smoke:
+    name: MCP smoke test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # `uv run` builds a fresh environment by resolving pyproject.toml from
+      # scratch, then launches the server via its console script -- the same
+      # install path a customer hits with `uvx --from git+...`, pointed at this
+      # PR's source. This is what makes the smoke test catch dependency-
+      # resolution / startup regressions rather than passing against a stale env.
+      - name: Run MCP smoke test
+        run: uv run --refresh python tests/smoke_test.py

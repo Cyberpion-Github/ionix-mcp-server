@@ -1,5 +1,6 @@
 /.venv
 /.env
+/uv.lock
 __pycache__/
 
 # Build artifacts
