@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  mcp-smoke:
+    name: MCP smoke test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # `uv run` builds a fresh environment by resolving pyproject.toml from
+      # scratch, then launches the server via its console script -- the same
+      # install path a customer hits with `uvx --from git+...`, pointed at this
+      # PR's source. This is what makes the smoke test catch dependency-
+      # resolution / startup regressions rather than passing against a stale env.
+      - name: Run MCP smoke test
+        run: uv run --refresh python tests/smoke_test.py
+
+  # Second, higher-fidelity check: drive the server with the official MCP
+  # Inspector over the exact customer install path from the README config
+  # (`uvx --from git+<repo>@<ref> ionix-mcp`), pinned to THIS PR's commit and
+  # with no credentials. Catches breakage that only appears when installing from
+  # the git URL as Claude Desktop does, using an independent standard tool.
+  mcp-inspector:
+    name: MCP Inspector (git install, py3.12)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Render the committed template into a real Claude-Desktop-shaped config,
+      # pinned to the exact repo + commit under test. Uses the head repo's
+      # clone_url + head SHA on pull_request (correct for same-repo and forks),
+      # and falls back to this repo + github.sha for push-to-main.
+      - name: Render inspector config for this commit
+        env:
+          REPO_URL: ${{ github.event.pull_request.head.repo.clone_url || format('https://github.com/{0}.git', github.repository) }}
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sed -e "s#__REPO_URL__#${REPO_URL}#" -e "s#__REF__#${REF}#" \
+            tests/inspector-config.template.json > inspector-config.json
+          echo "Using config:"; cat inspector-config.json
+
+      - name: Run MCP Inspector (tools/list) against the git-installed server
+        run: |
+          out=$(npx --yes @modelcontextprotocol/inspector@latest --cli \
+            --config inspector-config.json --server ionix --method tools/list)
+          echo "$out"
+          # Non-empty, real tool list: the server started, connected, and answered.
+          echo "$out" | grep -q '"get_discovery_org_assets"'
