@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "ionix": {
+      "command": "uvx",
+      "args": ["--from", "git+__REPO_URL__@__REF__", "ionix-mcp"],
+      "env": {}
+    }
+  }
+}
