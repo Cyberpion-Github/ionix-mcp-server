@@ -1432,6 +1432,69 @@ async def get_action_items_all(
     data = fetch("remediation/action-items/all/", params=params, account_name=account_name)
     return str(data)
 
+@mcp.tool()
+async def get_action_item_ai_roles(
+    search: str | None = None,
+    ordering: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """List the audience roles available for the action-item AI summary.
+
+    Pass one of the returned values as the `role` argument to
+    get_action_item_ai_summary to control who the summary is written for. The
+    list is account-specific, so read it from here rather than hard-coding values.
+
+    Args:
+        search: Free-text search term (optional)
+        ordering: Field to use for ordering results (optional)
+        limit: Number of results to return per page (optional)
+        offset: The initial index from which to return the results (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if search is not None:
+        params["search"] = search
+    if ordering is not None:
+        params["ordering"] = ordering
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+
+    data = fetch("remediation/action-items/open/detailed/ai_roles/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_action_item_ai_summary(
+    id: str,
+    role: str | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get an AI-generated, plain-language summary of a single action item.
+
+    Explains what the issue is, why it matters, and how to fix it.
+
+    Args:
+        id: The action item ID to summarize (required)
+        role: Audience the summary is written for. Defaults to 'detailed'. Matched
+            case-insensitively; an unrecognized value is treated as the default rather
+            than rejected. Available values are account-specific - list them with
+            get_action_item_ai_roles (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if role is not None:
+        params["role"] = role
+
+    data = fetch(
+        f"remediation/action-items/open/detailed/{id}/ai_summary/",
+        params=params,
+        account_name=account_name,
+    )
+    return str(data)
+
 # Assessment endpoints for digital supply chain
 @mcp.tool()
 async def get_assessments_digital_supply_chain(
