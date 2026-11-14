@@ -2242,6 +2242,170 @@ async def get_org_assets_tags(
     data = fetch("configuration/tags/org-assets-tags/", params=params, account_name=account_name)
     return str(data)
 
+# Threat Center endpoints
+@mcp.tool()
+async def get_threat_center_posts(
+    cvss_min: float | None = None,
+    cvss_max: float | None = None,
+    published_after: str | None = None,
+    published_before: str | None = None,
+    has_pa: bool | None = None,
+    has_cf: bool | None = None,
+    global_filter: str | None = None,
+    stage: int | None = None,
+    search: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """List Threat Center posts - IONIX's write-ups of emerging threats and the CVEs they cover.
+
+    Returns posts newest CVE publish date first, with potentially affected asset counts,
+    confirmed finding counts, and links to the matching assets and action items. Useful
+    for pulling emerging high-severity CVEs into a SIEM, SOAR, or ticketing workflow.
+
+    Args:
+        cvss_min: CVSS lower bound, 0-10 (optional)
+        cvss_max: CVSS upper bound, 0-10 (optional)
+        published_after: ISO date/datetime. CVE published on or after. Default: now - 730 days (optional)
+        published_before: ISO date/datetime. CVE published on or before (optional)
+        has_pa: Filter to CVEs with potentially affected assets (True/False) (optional)
+        has_cf: Filter to CVEs with confirmed findings (True/False) (optional)
+        global_filter: Filter by group or subsidiary name (optional)
+        stage: Filter by funnel stage, 3 or 4 (optional)
+        search: Free-text, case-insensitive substring match over post title / CVE ids (optional)
+        limit: Number of results to return per page (optional)
+        offset: The initial index from which to return the results (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if cvss_min is not None:
+        params["cvss_min"] = cvss_min
+    if cvss_max is not None:
+        params["cvss_max"] = cvss_max
+    if published_after is not None:
+        params["published_after"] = published_after
+    if published_before is not None:
+        params["published_before"] = published_before
+    if has_pa is not None:
+        params["has_pa"] = has_pa
+    if has_cf is not None:
+        params["has_cf"] = has_cf
+    if global_filter is not None:
+        params["global_filter"] = global_filter
+    if stage is not None:
+        params["stage"] = stage
+    if search is not None:
+        params["search"] = search
+    if limit is not None:
+        params["limit"] = limit
+    if offset is not None:
+        params["offset"] = offset
+
+    data = fetch("threat-center/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_threat_center_funnel(
+    cvss_min: float | None = None,
+    cvss_max: float | None = None,
+    published_after: str | None = None,
+    published_before: str | None = None,
+    has_pa: bool | None = None,
+    has_cf: bool | None = None,
+    global_filter: str | None = None,
+    include_cve_ids: bool | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get the CVE exposure funnel for the given filters.
+
+    Narrows all published CVEs to those exploitable over the network, then to those
+    affecting your assets, then to those validated as exploitable. Each stage includes a
+    count, percentage, and severity breakdown. Accounts without Live Exposure Defense
+    receive the first stage only.
+
+    Args:
+        cvss_min: CVSS lower bound, 0-10 (optional)
+        cvss_max: CVSS upper bound, 0-10 (optional)
+        published_after: ISO date/datetime. CVE published on or after. Default: now - 730 days (optional)
+        published_before: ISO date/datetime. CVE published on or before (optional)
+        has_pa: Filter to CVEs with potentially affected assets (True/False) (optional)
+        has_cf: Filter to CVEs with confirmed findings (True/False) (optional)
+        global_filter: Filter by group or subsidiary name (optional)
+        include_cve_ids: Include cve_ids and a truncated flag on each stage entry. Default: false (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if cvss_min is not None:
+        params["cvss_min"] = cvss_min
+    if cvss_max is not None:
+        params["cvss_max"] = cvss_max
+    if published_after is not None:
+        params["published_after"] = published_after
+    if published_before is not None:
+        params["published_before"] = published_before
+    if has_pa is not None:
+        params["has_pa"] = has_pa
+    if has_cf is not None:
+        params["has_cf"] = has_cf
+    if global_filter is not None:
+        params["global_filter"] = global_filter
+    if include_cve_ids is not None:
+        params["include_cve_ids"] = include_cve_ids
+
+    data = fetch("threat-center/funnel/", params=params, account_name=account_name)
+    return str(data)
+
+@mcp.tool()
+async def get_threat_center_totals(
+    cvss_min: float | None = None,
+    cvss_max: float | None = None,
+    published_after: str | None = None,
+    published_before: str | None = None,
+    has_pa: bool | None = None,
+    has_cf: bool | None = None,
+    global_filter: str | None = None,
+    stage: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get aggregate threat exposure totals behind the threat feed for a set of filters.
+
+    Returns matching post count, potentially affected assets, confirmed findings, severity
+    breakdown, and when exposure was last recomputed. Accepts the same filters as the
+    feed, without paging through every post.
+
+    Args:
+        cvss_min: CVSS lower bound, 0-10 (optional)
+        cvss_max: CVSS upper bound, 0-10 (optional)
+        published_after: ISO date/datetime. CVE published on or after. Default: now - 730 days (optional)
+        published_before: ISO date/datetime. CVE published on or before (optional)
+        has_pa: Filter to CVEs with potentially affected assets (True/False) (optional)
+        has_cf: Filter to CVEs with confirmed findings (True/False) (optional)
+        global_filter: Filter by group or subsidiary name (optional)
+        stage: Filter by funnel stage, 3 or 4 (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = {}
+    if cvss_min is not None:
+        params["cvss_min"] = cvss_min
+    if cvss_max is not None:
+        params["cvss_max"] = cvss_max
+    if published_after is not None:
+        params["published_after"] = published_after
+    if published_before is not None:
+        params["published_before"] = published_before
+    if has_pa is not None:
+        params["has_pa"] = has_pa
+    if has_cf is not None:
+        params["has_cf"] = has_cf
+    if global_filter is not None:
+        params["global_filter"] = global_filter
+    if stage is not None:
+        params["stage"] = stage
+
+    data = fetch("threat-center/summary/", params=params, account_name=account_name)
+    return str(data)
+
 def main():
     """Main entry point for the IONIX MCP server."""
     api_key = os.getenv("IONIX_API_KEY")
