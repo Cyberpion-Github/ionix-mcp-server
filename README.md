@@ -205,6 +205,13 @@ The IONIX MCP server provides the following tools:
 - `get_action_items_open_detailed` - Get detailed open action items
 - `get_action_items_closed` - Get closed action items
 - `get_action_items_all` - Get all action items (open and closed)
+- `get_action_item_ai_roles` - List the audience roles available for action item AI summaries
+- `get_action_item_ai_summary` - Get an AI-generated, plain-language summary of an action item
+
+### Threat Center
+- `get_threat_center_posts` - List Threat Center posts for emerging CVEs with your asset exposure
+- `get_threat_center_funnel` - Get the CVE exposure funnel with counts and severity breakdown per stage
+- `get_threat_center_totals` - Get aggregate threat exposure totals for a set of filters
 
 ### Scan History & Analytics
 - `get_scan_history` - **NEW!** Get aggregated scan history showing:
