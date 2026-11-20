@@ -2082,8 +2082,8 @@ async def get_action_item_open_details(
     data = fetch(f"remediation/action-items/open/{id}/", params=params, account_name=account_name)
     return str(data)
 
-# A cache miss generates the summary with an LLM, which the API allows up to ~2 minutes
-# (its server-side worker limit); the default 30s client timeout would abandon it mid-flight.
+# A cache miss generates the summary with an LLM, which can take up to ~2 minutes;
+# the default 30s client timeout would abandon it mid-flight.
 AI_SUMMARY_TIMEOUT_SECONDS = 120.0
 
 
@@ -2101,7 +2101,7 @@ async def get_action_item_ai_roles(account_name: str | None = None) -> str:
     """List the audiences an action item AI summary can be written for.
 
     Returns {"roles": [...]}. Pass one of these values as `role` to get_action_item_ai_summary.
-    The list is configured per account (some roles are behind feature flags), so read it here
+    The list is configured per account (not every role is available to every account), so read it here
     instead of hard-coding values.
 
     Args:
@@ -2300,7 +2300,7 @@ THREAT_CENTER_FUNNEL_CVE_IDS_TIMEOUT_SECONDS = 90.0
 # thousands of IDs (capped at 5000, truncated) that say nothing about the account and would
 # flood the model's context (~180K characters), so their lists are dropped.
 _FUNNEL_ACCOUNT_STAGE_IDS = {3, 4}
-_MONGO_OBJECT_ID_RE = re.compile(r"^[0-9a-f]{24}$")
+_POST_ID_RE = re.compile(r"^[0-9a-f]{24}$")
 
 
 def _threat_center_filters(
@@ -2325,9 +2325,9 @@ def _threat_center_filters(
 
 
 def _normalize_post_id(post_id: str) -> tuple[str | None, str | None]:
-    """Return (normalized_id, error). Post ids are 24-char hex Mongo ObjectIds; anything else 404s."""
+    """Return (normalized_id, error). Post ids are 24-character hex strings; anything else 404s."""
     normalized = str(post_id).strip().lower()
-    if _MONGO_OBJECT_ID_RE.match(normalized):
+    if _POST_ID_RE.match(normalized):
         return normalized, None
     return None, (
         f"Invalid post_id {post_id!r}: expected the 24-character hex `_id` of a post "
