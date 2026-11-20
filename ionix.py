@@ -2293,6 +2293,13 @@ async def get_org_assets_tags(
 
 THREAT_CENTER_DEFAULT_LIMIT = 20
 THREAT_CENTER_MAX_LIMIT = 100
+# include_cve_ids makes the funnel build every stage's CVE list server-side, which measured
+# ~50s over the default 730-day window (vs ~3s without it).
+THREAT_CENTER_FUNNEL_CVE_IDS_TIMEOUT_SECONDS = 90.0
+# Funnel stages whose CVE lists are about this account. Stages 1-2 are the global CVE universe:
+# thousands of IDs (capped at 5000, truncated) that say nothing about the account and would
+# flood the model's context (~180K characters), so their lists are dropped.
+_FUNNEL_ACCOUNT_STAGE_IDS = {3, 4}
 _MONGO_OBJECT_ID_RE = re.compile(r"^[0-9a-f]{24}$")
 
 
@@ -2347,7 +2354,8 @@ async def get_threat_center_posts(
 
     Sorted newest CVE publish date first. Returns {"count", "next", "previous", "results"}; each
     post has `_id` (pass it as post_id to get_threat_center_post / get_threat_center_post_cve_data),
-    title, cves, severity, cvss, cve_publish_date, `potentially_affected` and
+    title, cves, `severity` (the numeric CVSS-style score, e.g. 9.8; the separate `cvss` field
+    is usually null), cve_publish_date, `potentially_affected` and
     `confirmed_findings` counts (null with `pending_next_scan=true` on plans that release
     them after the next scan), `potential_affected_ui_url` / `findings_ui_url` portal links, and
     `agentic_step` / `agentic_state` showing how far IONIX's analysis of the CVE has progressed.
@@ -2469,14 +2477,34 @@ async def get_threat_center_funnel(
         has_pa: True to restrict to CVEs with potentially affected assets on this account (optional)
         has_cf: True to restrict to CVEs with confirmed findings on this account (optional)
         global_filter: Group or subsidiary name; scopes the account-side stages to it and its descendants (optional)
-        include_cve_ids: True to also return the CVE IDs in each stage (with a `truncated` flag). Default false (optional)
+        include_cve_ids: True to also list the CVE IDs in stages 3 and 4 (the CVEs affecting / validated on
+            this account). Stage 1-2 lists are global and omitted. Slow: up to ~1 minute over the default
+            date range, so narrow with published_after when possible. For per-CVE detail prefer
+            get_threat_center_posts with stage=3 or 4. Default false (optional)
         account_name: Override the default account name from environment (optional)
     """
     params = _threat_center_filters(
         cvss_min, cvss_max, published_after, published_before, has_pa, has_cf, global_filter
     )
     params["include_cve_ids"] = include_cve_ids
-    data = fetch("threat-center/funnel/", params=params, account_name=account_name)
+    if not include_cve_ids:
+        data = fetch("threat-center/funnel/", params=params, account_name=account_name)
+        return str(data)
+
+    # Slow path: run off the event loop with a longer timeout, and keep only the
+    # account-specific CVE lists.
+    data = await asyncio.to_thread(
+        fetch,
+        "threat-center/funnel/",
+        params=params,
+        account_name=account_name,
+        timeout=THREAT_CENTER_FUNNEL_CVE_IDS_TIMEOUT_SECONDS,
+    )
+    if isinstance(data, dict) and isinstance(data.get("stages"), list):
+        for stage in data["stages"]:
+            if isinstance(stage, dict) and stage.get("id") not in _FUNNEL_ACCOUNT_STAGE_IDS:
+                stage.pop("cve_ids", None)
+                stage.pop("truncated", None)
     return str(data)
 
 

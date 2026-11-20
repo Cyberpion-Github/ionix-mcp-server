@@ -7,6 +7,7 @@ and replies with a canned response, so these verify exactly what the tools send 
 Run locally:  uv run python -m unittest discover -s tests -p 'test_*.py'
 """
 
+import ast
 import asyncio
 import contextlib
 import io
@@ -89,6 +90,33 @@ class ThreatCenterToolsTest(unittest.TestCase):
         self.assertEqual(dict(funnel.url.params), {"include_cve_ids": "true", "global_filter": "EMEA"})
         self.assertEqual(totals.url.path, "/api/v1/threat-center/summary/")
         self.assertEqual(dict(totals.url.params), {"stage": "4", "published_after": "2026-01-01"})
+
+    def test_funnel_cve_ids_keeps_only_account_stages_with_long_timeout(self):
+        body = {
+            "total_cves": 3,
+            "stages": [
+                {"id": 1, "count": 9000, "cve_ids": ["CVE-1"] * 5000, "truncated": True},
+                {"id": 2, "count": 4000, "cve_ids": ["CVE-2"] * 4000, "truncated": False},
+                {"id": 3, "count": 2, "cve_ids": ["CVE-2026-1", "CVE-2026-2"], "truncated": False},
+                {"id": 4, "count": 0, "cve_ids": [], "truncated": False},
+            ],
+        }
+        with _Recorder(httpx.Response(200, json=body)) as rec:
+            out = run(ionix.get_threat_center_funnel(include_cve_ids=True))
+        self.assertEqual(
+            rec.only.extensions["timeout"]["read"], ionix.THREAT_CENTER_FUNNEL_CVE_IDS_TIMEOUT_SECONDS
+        )
+        stages = {s["id"]: s for s in ast.literal_eval(out)["stages"]}  # tool output is a Python repr
+        self.assertNotIn("cve_ids", stages[1])
+        self.assertNotIn("cve_ids", stages[2])
+        self.assertEqual(stages[3]["cve_ids"], ["CVE-2026-1", "CVE-2026-2"])
+        self.assertIn("cve_ids", stages[4])
+        self.assertEqual(stages[1]["count"], 9000)
+
+    def test_funnel_without_cve_ids_uses_default_timeout(self):
+        with _Recorder() as rec:
+            run(ionix.get_threat_center_funnel())
+        self.assertEqual(rec.only.extensions["timeout"]["read"], ionix.DEFAULT_TIMEOUT_SECONDS)
 
     def test_post_detail_normalizes_id_and_drops_image(self):
         body = {"_id": POST_ID, "title": "CVE-X", "image": "data:image/svg+xml;base64,AAAA"}
