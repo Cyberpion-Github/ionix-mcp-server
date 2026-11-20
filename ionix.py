@@ -1,6 +1,10 @@
 from typing import Any
+import asyncio
 import httpx
 import os
+import re
+import sys
+import uuid
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
@@ -12,12 +16,41 @@ IONIX_API_BASE = "https://api.portal.ionix.io/api/v1/"
 ACCOUNT_NAME = os.getenv("IONIX_ACCOUNT_NAME")
 api_key = os.getenv("IONIX_API_KEY")
 
+DEFAULT_TIMEOUT_SECONDS = 30.0
+# Cap on how much of a non-JSON error body is passed back to the model.
+MAX_ERROR_BODY_CHARS = 1000
+
+
+def _http_error(response: httpx.Response) -> dict[str, Any]:
+    """Turn a non-2xx response into an error dict that keeps the API's own explanation.
+
+    The IONIX API puts the actionable reason in the body (e.g. "stage must be an integer 3..4",
+    "Query limit exceeded"), so it is returned alongside the status code instead of being dropped.
+    HTML bodies (proxy / framework error pages) carry no useful detail and are omitted.
+    """
+    error: dict[str, Any] = {
+        "error": f"IONIX API returned HTTP {response.status_code} {response.reason_phrase}".strip(),
+        "status_code": response.status_code,
+    }
+    content_type = response.headers.get("content-type", "")
+    if "json" in content_type:
+        try:
+            error["detail"] = response.json()
+        except ValueError:
+            pass
+    elif "html" not in content_type and response.text:
+        error["detail"] = response.text[:MAX_ERROR_BODY_CHARS]
+    return error
+
+
 def fetch(
     path: str,
     params: dict[str, Any] | None = None,
     account_name: str | None = None,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
 ):
-    print(f"Fetching data from {path}")
+    # stdout is the MCP stdio transport; diagnostics must go to stderr.
+    print(f"Fetching data from {path}", file=sys.stderr)
     with httpx.Client() as client:
         try:
             # Use provided account name or fall back to environment variable
@@ -35,11 +68,14 @@ def fetch(
             if params:
                 params = {k: v for k, v in params.items() if v is not None}
 
-            response = client.get(url, headers=headers, params=params, timeout=30.0)
-            response.raise_for_status()
+            response = client.get(url, headers=headers, params=params, timeout=timeout)
+            if not response.is_success:
+                return _http_error(response)
             return response.json()
+        except httpx.TimeoutException:
+            return {"error": f"Request to the IONIX API timed out after {timeout:g}s"}
         except Exception as e:
-            return {"error": str(e)}
+            return {"error": str(e) or type(e).__name__}
 
 # Discovery endpoints
 @mcp.tool()
@@ -2046,6 +2082,73 @@ async def get_action_item_open_details(
     data = fetch(f"remediation/action-items/open/{id}/", params=params, account_name=account_name)
     return str(data)
 
+# A cache miss generates the summary with an LLM, which can take up to ~2 minutes;
+# the default 30s client timeout would abandon it mid-flight.
+AI_SUMMARY_TIMEOUT_SECONDS = 120.0
+
+
+def _normalize_uuid(value: str, name: str) -> tuple[str | None, str | None]:
+    """Return (canonical_uuid, error). The API routes only match the lowercase dashed form,
+    so uppercase / undashed / urn: inputs are canonicalized rather than sent as typed (-> 404)."""
+    try:
+        return str(uuid.UUID(str(value).strip())), None
+    except ValueError:
+        return None, f"Invalid {name} {value!r}: expected a UUID such as 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+
+
+@mcp.tool()
+async def get_action_item_ai_roles(account_name: str | None = None) -> str:
+    """List the audiences an action item AI summary can be written for.
+
+    Returns {"roles": [...]}. Pass one of these values as `role` to get_action_item_ai_summary.
+    The list is configured per account (not every role is available to every account), so read it here
+    instead of hard-coding values.
+
+    Args:
+        account_name: Override the default account name from environment (optional)
+    """
+    data = fetch("remediation/action-items/open/detailed/ai_roles/", account_name=account_name)
+    return str(data)
+
+
+@mcp.tool()
+async def get_action_item_ai_summary(
+    id: str,
+    role: str | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get IONIX's AI-written, plain-language summary of one open action item.
+
+    Explains what the finding is, why it matters for this asset, and how to fix it, written for
+    the chosen audience. Returns the summary as markdown text.
+
+    Cost and latency: a summary that was generated before is returned from cache, instantly and
+    free. Otherwise IONIX generates it with an LLM, which can take up to ~2 minutes and counts
+    against the account's AI query quota (HTTP 429 "Query limit exceeded" once it runs out).
+    Request summaries for the specific action items you need, not in bulk over a whole list.
+
+    Args:
+        id: The action item ID, a UUID (e.g. from get_action_items_open or a portal ai_id link) (required)
+        role: Audience the summary is written for. Defaults to 'detailed'. Matched
+            case-insensitively; an unknown value silently falls back to the default. Valid
+            values are account-specific - list them with get_action_item_ai_roles (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    action_item_id, error = _normalize_uuid(id, "action item id")
+    if error:
+        return str({"error": error})
+
+    # fetch() is blocking; run it off the event loop so a long generation doesn't stall
+    # every other request this server is handling.
+    data = await asyncio.to_thread(
+        fetch,
+        f"remediation/action-items/open/detailed/{action_item_id}/ai_summary/",
+        params={"role": role},
+        account_name=account_name,
+        timeout=AI_SUMMARY_TIMEOUT_SECONDS,
+    )
+    return str(data)
+
 # Configuration tag endpoints
 @mcp.tool()
 async def get_action_item_tags(
@@ -2178,6 +2281,270 @@ async def get_org_assets_tags(
 
     data = fetch("configuration/tags/org-assets-tags/", params=params, account_name=account_name)
     return str(data)
+
+# Threat Center endpoints
+#
+# Threat Center is IONIX's feed of emerging, high-impact CVEs. Each post covers one or more CVEs
+# and carries two per-account counts: potentially affected assets (PA, assets running the
+# vulnerable technology) and confirmed findings (CF, assets IONIX validated as exploitable).
+# The funnel narrows every newly published CVE down to the ones validated on this account:
+#   1 New published CVEs -> 2 External exposure (remotely exploitable, no auth required)
+#   -> 3 Affecting your assets (PA > 0) -> 4 Validated exploitable (CF > 0)
+
+THREAT_CENTER_DEFAULT_LIMIT = 20
+THREAT_CENTER_MAX_LIMIT = 100
+# include_cve_ids makes the funnel build every stage's CVE list server-side, which measured
+# ~50s over the default 730-day window (vs ~3s without it).
+THREAT_CENTER_FUNNEL_CVE_IDS_TIMEOUT_SECONDS = 90.0
+# Funnel stages whose CVE lists are about this account. Stages 1-2 are the global CVE universe:
+# thousands of IDs (capped at 5000, truncated) that say nothing about the account and would
+# flood the model's context (~180K characters), so their lists are dropped.
+_FUNNEL_ACCOUNT_STAGE_IDS = {3, 4}
+_POST_ID_RE = re.compile(r"^[0-9a-f]{24}$")
+
+
+def _threat_center_filters(
+    cvss_min: float | None,
+    cvss_max: float | None,
+    published_after: str | None,
+    published_before: str | None,
+    has_pa: bool | None,
+    has_cf: bool | None,
+    global_filter: str | None,
+) -> dict[str, Any]:
+    """Query params shared by the Threat Center feed, funnel and totals (None values are dropped by fetch)."""
+    return {
+        "cvss_min": cvss_min,
+        "cvss_max": cvss_max,
+        "published_after": published_after,
+        "published_before": published_before,
+        "has_pa": has_pa,
+        "has_cf": has_cf,
+        "global_filter": global_filter,
+    }
+
+
+def _normalize_post_id(post_id: str) -> tuple[str | None, str | None]:
+    """Return (normalized_id, error). Post ids are 24-character hex strings; anything else 404s."""
+    normalized = str(post_id).strip().lower()
+    if _POST_ID_RE.match(normalized):
+        return normalized, None
+    return None, (
+        f"Invalid post_id {post_id!r}: expected the 24-character hex `_id` of a post "
+        "returned by get_threat_center_posts"
+    )
+
+
+@mcp.tool()
+async def get_threat_center_posts(
+    cvss_min: float | None = None,
+    cvss_max: float | None = None,
+    published_after: str | None = None,
+    published_before: str | None = None,
+    stage: int | None = None,
+    has_pa: bool | None = None,
+    has_cf: bool | None = None,
+    global_filter: str | None = None,
+    search: str | None = None,
+    limit: int | None = THREAT_CENTER_DEFAULT_LIMIT,
+    offset: int | None = None,
+    account_name: str | None = None
+) -> str:
+    """List Threat Center posts: IONIX write-ups of emerging CVEs, with this account's exposure to each.
+
+    Sorted newest CVE publish date first. Returns {"count", "next", "previous", "results"}; each
+    post has `_id` (pass it as post_id to get_threat_center_post / get_threat_center_post_cve_data),
+    title, cves, `severity` (the numeric CVSS-style score, e.g. 9.8; the separate `cvss` field
+    is usually null), cve_publish_date, `potentially_affected` and
+    `confirmed_findings` counts (null with `pending_next_scan=true` on plans that release
+    them after the next scan), `potential_affected_ui_url` / `findings_ui_url` portal links, and
+    `agentic_step` / `agentic_state` showing how far IONIX's analysis of the CVE has progressed.
+    The list omits the full write-up; fetch it per post with get_threat_center_post.
+
+    To answer "which emerging CVEs affect us", filter with has_pa=True (or stage=3); for
+    "which are confirmed exploitable on our assets", use has_cf=True (or stage=4).
+
+    Args:
+        cvss_min: CVSS lower bound, 0-10 (optional)
+        cvss_max: CVSS upper bound, 0-10 (optional)
+        published_after: ISO date or datetime; CVEs published on or after it. The API defaults to the last 730 days (optional)
+        published_before: ISO date or datetime; CVEs published on or before it (optional)
+        stage: Funnel stage filter: 3 = affecting your assets, 4 = validated exploitable. Only 3 and 4 are accepted (optional)
+        has_pa: True to keep only posts with potentially affected assets on this account (optional)
+        has_cf: True to keep only posts with confirmed findings on this account (optional)
+        global_filter: Group or subsidiary name; scopes the counts (not the post list) to it and its descendants (optional)
+        search: Case-insensitive substring match on post title or CVE ID, e.g. "CVE-2025-1234" or "fortinet" (optional)
+        limit: Posts per page, 1-100. Defaults to 20 to keep responses small; page with offset (optional)
+        offset: Number of posts to skip, for paging (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = _threat_center_filters(
+        cvss_min, cvss_max, published_after, published_before, has_pa, has_cf, global_filter
+    )
+    params.update(
+        {
+            "stage": stage,
+            "search": search,
+            "limit": None if limit is None else max(1, min(limit, THREAT_CENTER_MAX_LIMIT)),
+            "offset": offset,
+        }
+    )
+    data = fetch("threat-center/", params=params, account_name=account_name)
+    return str(data)
+
+
+@mcp.tool()
+async def get_threat_center_post(
+    post_id: str,
+    global_filter: str | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get one Threat Center post in full: the IONIX write-up and this account's exposure to it.
+
+    Includes everything in the list entry plus the detail the list leaves out: the markdown
+    write-up (description), references, read-more links and previously connected posts. Use it
+    after get_threat_center_posts to explain a specific emerging threat. The post's decorative
+    image (a base64 SVG) is dropped to save context.
+
+    Args:
+        post_id: The post's `_id` from get_threat_center_posts (24-character hex) (required)
+        global_filter: Group or subsidiary name to scope the exposure counts to (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    normalized, error = _normalize_post_id(post_id)
+    if error:
+        return str({"error": error})
+
+    data = fetch(
+        f"threat-center/post/{normalized}/",
+        params={"global_filter": global_filter},
+        account_name=account_name,
+    )
+    if isinstance(data, dict) and "error" not in data:
+        data.pop("image", None)
+    return str(data)
+
+
+@mcp.tool()
+async def get_threat_center_post_cve_data(
+    post_id: str,
+    account_name: str | None = None
+) -> str:
+    """Get the public vulnerability data (NVD, EPSS) for each CVE a Threat Center post covers.
+
+    Returns a list with one block per CVE (empty when the post is not about a CVE): cve_id,
+    cvss and cvss_vector with the decomposed metrics (attack_vector, attack_complexity,
+    privileges_required, scope, confidentiality/integrity impact, base_severity), epss and
+    epss_percentile (exploit probability), cwe, and published_at. This is global CVE data, so it
+    resolves even when the CVE affects none of this account's assets.
+
+    Args:
+        post_id: The post's `_id` from get_threat_center_posts (24-character hex) (required)
+        account_name: Override the default account name from environment (optional)
+    """
+    normalized, error = _normalize_post_id(post_id)
+    if error:
+        return str({"error": error})
+
+    data = fetch(f"threat-center/raw-data/{normalized}/", account_name=account_name)
+    return str(data)
+
+
+@mcp.tool()
+async def get_threat_center_funnel(
+    cvss_min: float | None = None,
+    cvss_max: float | None = None,
+    published_after: str | None = None,
+    published_before: str | None = None,
+    has_pa: bool | None = None,
+    has_cf: bool | None = None,
+    global_filter: str | None = None,
+    include_cve_ids: bool | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get the CVE exposure funnel: how many newly published CVEs end up validated on this account.
+
+    Returns four stages, each with a count, percentage and severity breakdown:
+    1 new published CVEs, 2 external exposure (remotely exploitable, no authentication
+    required), 3 affecting your assets, 4 validated exploitable on your assets. Accounts without IONIX Live Exposure
+    Defense receive stage 1 only. Good for an executive "how exposed are we to new CVEs" view.
+
+    Args:
+        cvss_min: CVSS lower bound, 0-10 (optional)
+        cvss_max: CVSS upper bound, 0-10 (optional)
+        published_after: ISO date or datetime; CVEs published on or after it. The API defaults to the last 730 days (optional)
+        published_before: ISO date or datetime; CVEs published on or before it (optional)
+        has_pa: True to restrict to CVEs with potentially affected assets on this account (optional)
+        has_cf: True to restrict to CVEs with confirmed findings on this account (optional)
+        global_filter: Group or subsidiary name; scopes the account-side stages to it and its descendants (optional)
+        include_cve_ids: True to also list the CVE IDs in stages 3 and 4 (the CVEs affecting / validated on
+            this account). Stage 1-2 lists are global and omitted. Slow: up to ~1 minute over the default
+            date range, so narrow with published_after when possible. For per-CVE detail prefer
+            get_threat_center_posts with stage=3 or 4. Default false (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = _threat_center_filters(
+        cvss_min, cvss_max, published_after, published_before, has_pa, has_cf, global_filter
+    )
+    params["include_cve_ids"] = include_cve_ids
+    if not include_cve_ids:
+        data = fetch("threat-center/funnel/", params=params, account_name=account_name)
+        return str(data)
+
+    # Slow path: run off the event loop with a longer timeout, and keep only the
+    # account-specific CVE lists.
+    data = await asyncio.to_thread(
+        fetch,
+        "threat-center/funnel/",
+        params=params,
+        account_name=account_name,
+        timeout=THREAT_CENTER_FUNNEL_CVE_IDS_TIMEOUT_SECONDS,
+    )
+    if isinstance(data, dict) and isinstance(data.get("stages"), list):
+        for stage in data["stages"]:
+            if isinstance(stage, dict) and stage.get("id") not in _FUNNEL_ACCOUNT_STAGE_IDS:
+                stage.pop("cve_ids", None)
+                stage.pop("truncated", None)
+    return str(data)
+
+
+@mcp.tool()
+async def get_threat_center_totals(
+    cvss_min: float | None = None,
+    cvss_max: float | None = None,
+    published_after: str | None = None,
+    published_before: str | None = None,
+    stage: int | None = None,
+    has_pa: bool | None = None,
+    has_cf: bool | None = None,
+    global_filter: str | None = None,
+    account_name: str | None = None
+) -> str:
+    """Get aggregate Threat Center totals for a filter set, without paging through posts.
+
+    Returns total_posts, total_potentially_affected, total_confirmed_findings, a severity
+    breakdown (critical/high/medium/low CVE counts by CVSS), and last_synced_at (when the counts
+    were last recomputed). Takes the same
+    filters as get_threat_center_posts, so it is the cheap way to answer "how many" questions.
+
+    Args:
+        cvss_min: CVSS lower bound, 0-10 (optional)
+        cvss_max: CVSS upper bound, 0-10 (optional)
+        published_after: ISO date or datetime; CVEs published on or after it. The API defaults to the last 730 days (optional)
+        published_before: ISO date or datetime; CVEs published on or before it (optional)
+        stage: Funnel stage filter: 3 = affecting your assets, 4 = validated exploitable. Only 3 and 4 are accepted (optional)
+        has_pa: True to count only posts with potentially affected assets on this account (optional)
+        has_cf: True to count only posts with confirmed findings on this account (optional)
+        global_filter: Group or subsidiary name; scopes the totals to it and its descendants (optional)
+        account_name: Override the default account name from environment (optional)
+    """
+    params = _threat_center_filters(
+        cvss_min, cvss_max, published_after, published_before, has_pa, has_cf, global_filter
+    )
+    params["stage"] = stage
+    data = fetch("threat-center/summary/", params=params, account_name=account_name)
+    return str(data)
+
 
 def main():
     """Main entry point for the IONIX MCP server."""

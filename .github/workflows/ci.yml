@@ -29,6 +29,11 @@ jobs:
       - name: Run MCP smoke test
         run: uv run --refresh python tests/smoke_test.py
 
+      # Hermetic unit tests (mocked HTTP, no credentials): what each tool sends to the
+      # IONIX API and how fetch() reports errors.
+      - name: Run unit tests
+        run: uv run python -m unittest discover -s tests -p 'test_*.py' -v
+
   # Second, higher-fidelity check: drive the server with the official MCP
   # Inspector over the exact customer install path from the README config
   # (`uvx --from git+<repo>@<ref> ionix-mcp`), pinned to THIS PR's commit and
@@ -40,10 +45,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Caching is off: the Inspector launches uvx with its own env, so uv never writes to
+      # setup-uv's cache dir, and the post-job cache save then fails the job on a missing path.
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
+          enable-cache: false
 
       - name: Install Node
         uses: actions/setup-node@v4

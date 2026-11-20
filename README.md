@@ -164,6 +164,13 @@ You can ask Claude to:
 - "Get the attack surface risk score details"
 - "Show me certificates for assets containing 'mycompany'"
 - "Get all action items for the asset api.example.com"
+- "Explain this action item in plain language for an executive audience"
+
+**Threat Center & Emerging CVEs:**
+- "Which emerging CVEs from the last 30 days affect our assets?"
+- "Are any critical emerging CVEs confirmed exploitable on our assets?"
+- "Show me our CVE exposure funnel for the last 90 days"
+- "Summarize the Threat Center post for CVE-2025-1234 and its EPSS score"
 
 **MSSP Management:**
 - "Get MSSP company info"
@@ -205,6 +212,15 @@ The IONIX MCP server provides the following tools:
 - `get_action_items_open_detailed` - Get detailed open action items
 - `get_action_items_closed` - Get closed action items
 - `get_action_items_all` - Get all action items (open and closed)
+- `get_action_item_ai_summary` - Get IONIX's AI-written, plain-language explanation of an action item (what it is, why it matters, how to fix it). Cached summaries return instantly; new ones take up to ~2 minutes and count against your account's AI query quota
+- `get_action_item_ai_roles` - List the audiences (roles) an AI summary can be written for
+
+### Threat Center
+- `get_threat_center_posts` - List IONIX Threat Center posts on emerging CVEs, with your potentially affected assets and confirmed findings for each (filter by CVSS, publish date, funnel stage, group, or free text)
+- `get_threat_center_post` - Get one post's full write-up, references, and your exposure to it
+- `get_threat_center_post_cve_data` - Get NVD and EPSS data (CVSS vector, exploit probability, CWE) for the CVEs a post covers
+- `get_threat_center_funnel` - Get the CVE exposure funnel: new published CVEs, external exposure, affecting your assets, validated exploitable
+- `get_threat_center_totals` - Get aggregate totals (posts, affected assets, confirmed findings, severity breakdown) for a filter set
 
 ### Scan History & Analytics
 - `get_scan_history` - **NEW!** Get aggregated scan history showing:
