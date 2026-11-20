@@ -130,6 +130,15 @@ class ActionItemAIToolsTest(unittest.TestCase):
         self.assertEqual(req.extensions["timeout"]["read"], ionix.AI_SUMMARY_TIMEOUT_SECONDS)
         self.assertEqual(out, "## What it is\nAn exposed panel.")
 
+    def test_ai_summary_canonicalizes_uuid(self):
+        # The API route only matches lowercase dashed UUIDs; other spellings would 404.
+        for spelling in (AI_ID.upper(), AI_ID.replace("-", ""), f"  urn:uuid:{AI_ID} "):
+            with _Recorder(httpx.Response(200, json="ok")) as rec:
+                run(ionix.get_action_item_ai_summary(spelling))
+            self.assertEqual(
+                rec.only.url.path, f"/api/v1/remediation/action-items/open/detailed/{AI_ID}/ai_summary/"
+            )
+
     def test_ai_summary_rejects_non_uuid_without_a_request(self):
         with _Recorder() as rec:
             out = run(ionix.get_action_item_ai_summary("not-a-uuid"))

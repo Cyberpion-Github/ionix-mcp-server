@@ -1,4 +1,5 @@
 from typing import Any
+import asyncio
 import httpx
 import os
 import re
@@ -2086,13 +2087,13 @@ async def get_action_item_open_details(
 AI_SUMMARY_TIMEOUT_SECONDS = 120.0
 
 
-def _invalid_uuid(value: str, name: str) -> str | None:
-    """Return an error message when `value` is not a UUID, else None."""
+def _normalize_uuid(value: str, name: str) -> tuple[str | None, str | None]:
+    """Return (canonical_uuid, error). The API routes only match the lowercase dashed form,
+    so uppercase / undashed / urn: inputs are canonicalized rather than sent as typed (-> 404)."""
     try:
-        uuid.UUID(str(value).strip())
-        return None
+        return str(uuid.UUID(str(value).strip())), None
     except ValueError:
-        return f"Invalid {name} {value!r}: expected a UUID such as 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        return None, f"Invalid {name} {value!r}: expected a UUID such as 3fa85f64-5717-4562-b3fc-2c963f66afa6"
 
 
 @mcp.tool()
@@ -2133,12 +2134,15 @@ async def get_action_item_ai_summary(
             values are account-specific - list them with get_action_item_ai_roles (optional)
         account_name: Override the default account name from environment (optional)
     """
-    error = _invalid_uuid(id, "action item id")
+    action_item_id, error = _normalize_uuid(id, "action item id")
     if error:
         return str({"error": error})
 
-    data = fetch(
-        f"remediation/action-items/open/detailed/{id.strip()}/ai_summary/",
+    # fetch() is blocking; run it off the event loop so a long generation doesn't stall
+    # every other request this server is handling.
+    data = await asyncio.to_thread(
+        fetch,
+        f"remediation/action-items/open/detailed/{action_item_id}/ai_summary/",
         params={"role": role},
         account_name=account_name,
         timeout=AI_SUMMARY_TIMEOUT_SECONDS,
