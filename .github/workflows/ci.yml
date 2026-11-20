@@ -45,10 +45,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Caching is off: the Inspector launches uvx with its own env, so uv never writes to
+      # setup-uv's cache dir, and the post-job cache save then fails the job on a missing path.
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
+          enable-cache: false
 
       - name: Install Node
         uses: actions/setup-node@v4
